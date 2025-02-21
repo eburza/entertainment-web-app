@@ -103,8 +103,8 @@ The client will start on `http://localhost:3000`
 - TypeScript
 - MongoDB/Mongoose
 - JWT Authentication
-- Winston/Morgan (Logging)
-- Jest (Testing)
+- Winston (Logging)
+- Vitest(Testing)
 - Class Validator
 - Helmet (Security)
 
@@ -120,6 +120,8 @@ server/
 │   ├── middleware/     # Custom middleware
 │   ├── config/         # Configuration files
 │   ├── utils/          # Utility functions
+│   ├── tests/          # Tests
+│   ├── types/          # TypeScript types
 │   └── index.ts        # App entry point
 ```
 
@@ -128,6 +130,7 @@ server/
 client/
 ├── src/
 │   ├── components/     # Reusable components
+│   ├── context/        # Context providers
 │   ├── pages/          # Page components
 │   ├── hooks/          # Custom hooks
 │   ├── services/       # API services
@@ -135,6 +138,11 @@ client/
 │   ├── types/          # TypeScript types
 │   ├── store/          # State management
 │   └── App.tsx         # Root component
+├── public/             # Static assets
+├── .env                # Environment variables
+├── .gitignore          # Git ignore rules
+├── package.json        # Project configuration
+├── tsconfig.json       # TypeScript configuration
 ```
 
 ## Contributing
