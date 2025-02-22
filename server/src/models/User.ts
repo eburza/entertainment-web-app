@@ -25,7 +25,11 @@ const userSchema = new Schema<IUser>({
     type: String,
     require: true,
     minlength: 8,
-    maxlength: 255
+    maxlength: 255,
+    match: [
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+    ]
   },
   isBookmarked: {
     type: [Show],
