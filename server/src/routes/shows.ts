@@ -46,9 +46,13 @@ router.get('/bookmarked', async (req: Request, res: Response) => {
 // Add show to bookmarked
 router.post('/bookmarked', async (req: Request, res: Response) => {
   try {
-    const showId = req.body.showId;
-    const show = await Show.findById(showId);
+    const { error } = validateShow(req.body); 
+    if (error) res.status(400).send(error);
 
+    const showId = req.body.showId;
+    if (!showId) res.status(400).json({ error: 'Show ID is required' });
+
+    const show = await Show.findById(showId);
     if (!show) res.status(404).json({ error: 'Show not found' });
 
     Show.findByIdAndUpdate(showId, { isBookmarked: true }, { new: true });
@@ -63,9 +67,13 @@ router.post('/bookmarked', async (req: Request, res: Response) => {
 // Remove show from bookmarked
 router.delete('/bookmarked', async (req: Request, res: Response) => {
   try {
-    const showId = req.body.showId;
-    const show = await Show.findById(showId);
+    const { error } = validateShow(req.body); 
+    if (error) res.status(400).send(error);
 
+    const showId = req.body.showId;
+    if (!showId) res.status(400).json({ error: 'Show ID is required' });
+
+    const show = await Show.findById(showId);
     if (!show) res.status(404).json({ error: 'Show not found' });
 
     Show.findByIdAndUpdate(showId, { isBookmarked: false }, { new: true });
