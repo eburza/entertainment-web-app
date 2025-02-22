@@ -1,6 +1,7 @@
 import showsRouter from './routes/shows';
 import bookmarkedRouter from './routes/bookmarked';
 import connectToDatabase from './config/db';
+import errorHandler from './middleware/error';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
@@ -17,6 +18,9 @@ app.use(express.json());
 //routes
 app.use('/shows', showsRouter);
 app.use('/bookmarked', bookmarkedRouter);
+
+//error handling middleware
+app.use(errorHandler);
 
 //start the server
 const port = process.env.PORT || 3001;
