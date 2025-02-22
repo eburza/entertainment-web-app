@@ -4,7 +4,6 @@
 /coverage
 /logs
 /temp
-/
 
 .env
 *.env
@@ -17,3 +16,9 @@
 
 # VSCode
 .vscode
+
+# Logs
+logs/
+error.log
+exceptions.log
+rejections.log
