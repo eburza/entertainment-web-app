@@ -1,8 +1,12 @@
 import showsRouter from './routes/shows';
 import bookmarkedRouter from './routes/bookmarked';
+import connectToDatabase from './config/db';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
+
+//connect to the database
+connectToDatabase();
 
 //create the express app
 const app = express();
