@@ -7,14 +7,16 @@ import Bookmarked from './pages/Bookmarked';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/tv-series" element={<TVSeries />} />
-        <Route path="/bookmarked" element={<Bookmarked />} />
-      </Routes>
-    </Router>
+    <React.StrictMode>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/tv-series" element={<TVSeries />} />
+          <Route path="/bookmarked" element={<Bookmarked />} />
+        </Routes>
+      </Router>
+    </React.StrictMode>
   );
 }
 
