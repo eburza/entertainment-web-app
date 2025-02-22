@@ -28,5 +28,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-
 /starter-code
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettier.cache
+
+# VSCode
+.vscode

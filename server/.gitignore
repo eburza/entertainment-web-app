@@ -8,3 +8,12 @@
 
 .env
 *.env
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettier.cache
+
+# VSCode
+.vscode
