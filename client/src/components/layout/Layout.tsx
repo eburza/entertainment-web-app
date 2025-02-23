@@ -4,10 +4,12 @@ import Sidebar from './Sidebar';
 
 export default function Layout() {
   return (
-    <div>
+    <div className="flex">
       <Sidebar />
-      <SearchBar />
-      <Outlet />
+      <div className="flex flex-col gap-4">
+        <SearchBar />
+        <Outlet />
+      </div>
     </div>
   );
 }
