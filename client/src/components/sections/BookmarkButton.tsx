@@ -1,5 +1,5 @@
-import BookmarkIconOn from '../../assets/icons/bookmark/icon-bookmark-full.svg';
-import BookmarkIconOff from '../../assets/icons/bookmark/icon-bookmark-empty.svg';
+import bookmarkIconOn from '../../assets/icons/icon-bookmark-full.svg';
+import bookmarkIconOff from '../../assets/icons/icon-bookmark-empty.svg';
 
 import { useState } from 'react';
 
@@ -12,6 +12,8 @@ export default function BookmarkButton() {
   };
 
   return (
-    <button onClick={handleClick}>{isBookmarked ? <BookmarkIconOn /> : <BookmarkIconOff />}</button>
+    <button onClick={handleClick}>
+      <img src={`${isBookmarked ? bookmarkIconOn : bookmarkIconOff}`} alt="Bookmark icon" />
+    </button>
   );
 }

@@ -6,7 +6,7 @@ import Movies from './pages/Movies';
 import TVSeries from './pages/TVSeries';
 import Bookmarked from './pages/Bookmarked';
 
-function App() {
+function App(): React.ReactNode {
   return (
     <React.StrictMode>
       <Router>
