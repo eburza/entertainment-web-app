@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Movies from './pages/Movies';
 import TVSeries from './pages/TVSeries';
 import Bookmarked from './pages/Bookmarked';
+import './styles.css';
 
 function App() {
   return (
