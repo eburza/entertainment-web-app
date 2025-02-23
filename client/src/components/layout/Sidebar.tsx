@@ -10,7 +10,7 @@ export default function Sidebar() {
   return (
     <section>
       <img src={`${logoIcon}`} alt="Logo" />
-      <ul>
+      <ul className="flex flex-col gap-4 list-none">
         <li>
           <Link to="/">
             <img src={`${navHomeIcon}`} alt="Home" />
@@ -31,7 +31,7 @@ export default function Sidebar() {
             <img src={`${navBookmarkedIcon}`} alt="Bookmarked" />
           </Link>
         </li>
-        <img src={`${userAvatar}`} alt="User avatar" />
+        <img src={`${userAvatar}`} alt="User avatar" className="w-10 h-10" />
       </ul>
     </section>
   );
