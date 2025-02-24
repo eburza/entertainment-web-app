@@ -1,7 +1,11 @@
+import TrendingSection from '../components/sections/TrendingSection';
+import MediaGrid from '../components/sections/MediaGrid';
+
 export default function Home() {
   return (
-    <div>
-      <h1>Home</h1>
+    <div className="space-y-10 max-w-[1440px] mx-auto">
+      <TrendingSection />
+      <MediaGrid />
     </div>
   );
 }
