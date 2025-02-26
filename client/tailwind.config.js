@@ -33,6 +33,9 @@ module.exports = {
         xl: '0.75rem',
         '2xl': '1rem',
       },
+      gridTemplateColumns: {
+        'auto-fill': 'repeat(auto-fill, minmax(200px, 1fr))',
+      },
     },
     screens: {
       sm: '640px',
