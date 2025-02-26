@@ -16,3 +16,14 @@ export interface IUser {
   password: string;
   isBookmarked: IShow[];
 }
+
+export interface IBookmarkContext {
+  bookmarks: {
+    movies: IShow[];
+    tvSeries: IShow[];
+  };
+}
+
+export interface TMDBResponse {
+  results: unknown[];
+}
