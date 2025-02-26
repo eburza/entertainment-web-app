@@ -8,13 +8,13 @@ interface MediaCardProps {
 
 export default function MediaCard({ imageUrl = '', variant = 'regular' }: MediaCardProps) {
   const cardStyles = {
-    regular: 'w-full h-[10.875rem]',
-    trending: 'w-[15rem] sm:w-[20rem] md:w-[25rem] lg:w-[29.375rem] h-[12rem] md:h-[14.375rem]',
+    regular: 'aspect-[16/10] min-w-[200px]',
+    trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
   };
 
   return (
     <div
-      className={`${cardStyles[variant]} relative bg-cover bg-center rounded-lg`}
+      className={`${cardStyles[variant]} relative bg-cover bg-center rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200`}
       style={{ backgroundImage: `url(${imageUrl})` }}
     >
       <div className="absolute top-4 right-4">
