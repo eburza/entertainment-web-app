@@ -1,5 +1,5 @@
 import MediaCard from '../components/shared/MediaCard';
-import imageUrl from '../mockData/assets/thumbnails/dogs/regular/large.jpg';
+import imageUrl from '/assets/thumbnails/dogs/regular/large.jpg';
 
 export default function Bookmarked() {
   return (
