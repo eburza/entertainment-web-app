@@ -8,10 +8,10 @@ import { Link } from 'react-router-dom';
 
 export default function Sidebar() {
   return (
-    <section className="bg-dark-light min-h-screen w-24 flex flex-col items-center py-8 fixed left-0">
+    <section className="bg-dark-light w-full md:w-24 md:min-h-screen flex flex-row md:flex-col items-center justify-between md:justify-start p-4 md:py-8 md:fixed md:left-0">
       <img src={logoIcon} alt="Logo" className="w-8 h-8" />
-      <nav className="flex-1 flex items-center">
-        <ul className="flex flex-col gap-10 list-none">
+      <nav className="flex-1 flex justify-center items-center">
+        <ul className="flex md:flex-col gap-6 md:gap-10 list-none">
           <li>
             <Link to="/" className="nav-link">
               <img src={navHomeIcon} alt="Home" className="w-5 h-5" />
@@ -37,7 +37,7 @@ export default function Sidebar() {
       <img
         src={userAvatar}
         alt="User avatar"
-        className="w-10 h-10 rounded-full border border-light"
+        className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-light"
       />
     </section>
   );

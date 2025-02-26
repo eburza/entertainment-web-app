@@ -8,8 +8,8 @@ interface MediaCardProps {
 
 export default function MediaCard({ imageUrl = '', variant = 'regular' }: MediaCardProps) {
   const cardStyles = {
-    regular: 'w-[17.5rem] h-[10.875rem]',
-    trending: 'w-[29.375rem] h-[14.375rem]',
+    regular: 'w-full h-[10.875rem]',
+    trending: 'w-[15rem] sm:w-[20rem] md:w-[25rem] lg:w-[29.375rem] h-[12rem] md:h-[14.375rem]',
   };
 
   return (
