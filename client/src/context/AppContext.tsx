@@ -1,11 +1,12 @@
-import React, { createContext, useState, useContext } from 'react';
-import { IAppContext, IBookmarkContext, IUser } from '../types/interface';
-
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { IAppContext, IBookmarkContext, IUser, IShow } from '../types/interface';
+import { getAllTrending } from '../services/tmdb';
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [bookmarks, setBookmarks] = useState<IBookmarkContext | null>(null);
+  const [trending, setTrending] = useState<IShow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -15,6 +16,78 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [isUser, setIsUser] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function fetchTrending() {
+      try {
+        const trending = await getAllTrending();
+        setTrending(trending as IShow[]);
+      } catch (error) {
+        setIsError(true);
+        setErrorMessage('Error fetching trending');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTrending();
+  }, []);
+
+  useEffect(() => {
+    async function getUser() {
+      setIsLoading(true);
+      try {
+        const data = await fetch('/api/user');
+        const response = await data.json();
+        setUser(response);
+        setIsSuccess(true);
+        setSuccessMessage('User fetched successfully');
+      } catch (error) {
+        setIsError(true);
+        setErrorMessage('Error fetching user');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setIsAuthenticated(true);
+      setIsAdmin(user.isAdmin);
+      setIsGuest(user.isGuest);
+      setIsUser(user.isUser);
+    } else {
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+      setIsGuest(false);
+      setIsUser(false);
+    }
+  }, [user]);
+
+  async function getBookmarks() {
+    setIsLoading(true);
+    try {
+      const data = await fetch('/api/user/bookmarks');
+      const response = await data.json();
+      setBookmarks(response);
+      setIsSuccess(true);
+      setSuccessMessage('Bookmarks fetched successfully');
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage('Error fetching bookmarks');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      getBookmarks();
+    }
+  }, [isAuthenticated]);
 
   return (
     <AppContext.Provider
@@ -41,6 +114,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setIsGuest,
         isUser,
         setIsUser,
+        trending,
+        setTrending,
       }}
     >
       {children}

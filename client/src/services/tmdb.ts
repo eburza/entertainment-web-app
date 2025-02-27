@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import fetch from 'node-fetch';
 import { TMDBResponse } from '../types/interface';
 
 dotenv.config();
@@ -12,17 +11,19 @@ const options = {
   headers: {
     accept: 'application/json',
     Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+    'Content-Type': 'application/json',
   },
 };
 
 // get all trending
 export async function getAllTrending() {
   try {
-    const response = await fetch(`${TMDB_BASE_URL}/trending/all/day?language=en-US`, options);
+    const response = await fetch(`${TMDB_BASE_URL}/trending/all/day`, options);
     const data = (await response.json()) as TMDBResponse;
     return data.results;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching trending:', error);
+    throw error;
   }
 }
 
@@ -33,7 +34,8 @@ export async function searchByKeyword(query: string) {
     const data = (await response.json()) as TMDBResponse;
     return data.results;
   } catch (error) {
-    console.error(error);
+    console.error('Error searching media:', error);
+    throw error;
   }
 }
 
