@@ -1,5 +1,5 @@
 export interface IShow {
-  _id: string;
+  id: string;
   title: string;
   thumbnail: string;
   year: number;
@@ -10,7 +10,7 @@ export interface IShow {
 }
 
 export interface IUser {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   password: string;
@@ -22,6 +22,31 @@ export interface IBookmarkContext {
     movies: IShow[];
     tvSeries: IShow[];
   };
+}
+
+export interface IAppContext {
+  user: IUser | null;
+  setUser: (user: IUser | null) => void;
+  bookmarks: IBookmarkContext | null;
+  setBookmarks: (bookmarks: IBookmarkContext | null) => void;
+  isLoading: boolean | null;
+  setIsLoading: (isLoading: boolean) => void;
+  isError: boolean | null;
+  setIsError: (isError: boolean) => void;
+  errorMessage: string | null;
+  setErrorMessage: (errorMessage: string) => void;
+  isSuccess: boolean | null;
+  setIsSuccess: (isSuccess: boolean) => void;
+  successMessage: string | null;
+  setSuccessMessage: (successMessage: string) => void;
+  isAuthenticated: boolean | null;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
+  isAdmin: boolean | null;
+  setIsAdmin: (isAdmin: boolean) => void;
+  isGuest: boolean | null;
+  setIsGuest: (isGuest: boolean) => void;
+  isUser: boolean | null;
+  setIsUser: (isUser: boolean) => void;
 }
 
 export interface TMDBResponse {
