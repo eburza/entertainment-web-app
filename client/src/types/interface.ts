@@ -7,6 +7,9 @@ export interface IShow {
   rating: string;
   isTrending: boolean;
   isBookmarked: boolean;
+  isWatched: boolean;
+  isFavorite: boolean;
+  isMovie: boolean;
 }
 
 export interface IUser {
@@ -15,6 +18,10 @@ export interface IUser {
   email: string;
   password: string;
   isBookmarked: IShow[];
+  isAdmin: boolean;
+  isGuest: boolean;
+  isUser: boolean;
+  isAuthenticated: boolean;
 }
 
 export interface IBookmarkContext {
@@ -29,6 +36,8 @@ export interface IAppContext {
   setUser: (user: IUser | null) => void;
   bookmarks: IBookmarkContext | null;
   setBookmarks: (bookmarks: IBookmarkContext | null) => void;
+  trending: IShow[];
+  setTrending: React.Dispatch<React.SetStateAction<IShow[]>>;
   isLoading: boolean | null;
   setIsLoading: (isLoading: boolean) => void;
   isError: boolean | null;
