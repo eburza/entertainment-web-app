@@ -1,10 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { IAppContext, IBookmarkContext, IUser, IShow } from '../types/interface';
 import { getAllTrending } from '../services/tmdb';
+import { useParams } from 'react-router-dom';
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
+  const [show, setShow] = useState<IShow | null>(null);
   const [bookmarks, setBookmarks] = useState<IBookmarkContext | null>(null);
   const [trending, setTrending] = useState<IShow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -16,6 +18,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [isUser, setIsUser] = useState<boolean>(false);
+
+  const params = useParams();
 
   useEffect(() => {
     async function fetchTrending() {
@@ -89,11 +93,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    async function loadShow() {
+      setIsLoading(true);
+      try {
+        const data = await fetch(`/api/show/${params.id}`);
+        const response = await data.json();
+        setShow(response);
+        setIsSuccess(true);
+        setSuccessMessage('Show loaded successfully');
+      } catch (error) {
+        setIsError(true);
+        setErrorMessage('Error loading show');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadShow();
+  }, [params.id]);
+
   return (
     <AppContext.Provider
       value={{
         user,
         setUser,
+        show,
+        setShow,
         bookmarks,
         setBookmarks,
         isLoading,

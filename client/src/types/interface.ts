@@ -34,6 +34,8 @@ export interface IBookmarkContext {
 export interface IAppContext {
   user: IUser | null;
   setUser: (user: IUser | null) => void;
+  show: IShow | null;
+  setShow: (show: IShow | null) => void;
   bookmarks: IBookmarkContext | null;
   setBookmarks: (bookmarks: IBookmarkContext | null) => void;
   trending: IShow[];
