@@ -1,8 +1,4 @@
-import dotenv from 'dotenv';
-import fetch from 'node-fetch';
 import { TMDBResponse } from '../types/interface';
-
-dotenv.config();
 
 const TMDB_API_ACCESS_TOKEN = process.env.TMDB_API_ACCESS_TOKEN;
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
