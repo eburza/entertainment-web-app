@@ -22,87 +22,161 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams();
 
   useEffect(() => {
-    async function fetchTrending() {
+    async function getAllShows() {
       try {
-        const trending = await getAllTrending();
-        setTrending(trending as IShow[]);
+        // Check if we're in development mode without backend
+        if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
+          console.warn(
+            'Backend API is not configured for getAllShows. Using mock data or skipping'
+          );
+          return;
+        }
+
+        const data = await fetch('/api/shows');
+        if (!data.ok) {
+          throw new Error(`API responded with status: ${data.status}`);
+        }
+        const response = await data.json();
+        setShow(response);
       } catch (error) {
+        console.error('Error fetching all shows:', error);
+        // Silently fail as this might not be critical
+      }
+    }
+
+    getAllShows();
+  }, []);
+
+  useEffect(() => {
+    async function getTrending() {
+      try {
+        setIsLoading(true);
+        const data = await getAllTrending();
+        setTrending(data as IShow[]);
+        setIsError(false);
+        setErrorMessage('');
+      } catch (error) {
+        console.error('Error in AppContext getTrending:', error);
         setIsError(true);
         setErrorMessage('Error fetching trending');
+        setTrending([]);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchTrending();
+    getTrending();
   }, []);
 
   useEffect(() => {
-    async function getUser() {
-      setIsLoading(true);
+    async function getBookmarks() {
       try {
-        const data = await fetch('/api/user');
+        // Check if we're in development mode without backend
+        if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
+          console.warn(
+            'Backend API is not configured for getBookmarks. Using mock data or skipping'
+          );
+          setBookmarks(null);
+          return;
+        }
+
+        const data = await fetch('/api/user/bookmarks');
+        if (!data.ok) {
+          throw new Error(`API responded with status: ${data.status}`);
+        }
         const response = await data.json();
-        setUser(response);
-        setIsSuccess(true);
-        setSuccessMessage('User fetched successfully');
+        setBookmarks(response);
       } catch (error) {
-        setIsError(true);
-        setErrorMessage('Error fetching user');
-      } finally {
-        setIsLoading(false);
+        console.error('Error fetching bookmarks:', error);
+        // Silently fail and set bookmarks to null
+        setBookmarks(null);
       }
     }
 
-    getUser();
+    getBookmarks();
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      setIsAuthenticated(true);
-      setIsAdmin(user.isAdmin);
-      setIsGuest(user.isGuest);
-      setIsUser(user.isUser);
-    } else {
-      setIsAuthenticated(false);
-      setIsAdmin(false);
-      setIsGuest(false);
-      setIsUser(false);
-    }
-  }, [user]);
+  // TODO: Implement user authentication
+  // useEffect(() => {
+  //   async function getUser() {
+  //     setIsLoading(true);
+  //     try {
+  //       const data = await fetch('/api/user');
+  //       const response = await data.json();
+  //       setUser(response);
+  //       setIsSuccess(true);
+  //       setSuccessMessage('User fetched successfully');
+  //     } catch (error) {
+  //       setIsError(true);
+  //       setErrorMessage('Error fetching user');
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
 
-  async function getBookmarks() {
-    setIsLoading(true);
-    try {
-      const data = await fetch('/api/user/bookmarks');
-      const response = await data.json();
-      setBookmarks(response);
-      setIsSuccess(true);
-      setSuccessMessage('Bookmarks fetched successfully');
-    } catch (error) {
-      setIsError(true);
-      setErrorMessage('Error fetching bookmarks');
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  //   getUser();
+  // }, []);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      getBookmarks();
-    }
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   if (user) {
+  //     setIsAuthenticated(true);
+  //     setIsAdmin(user.isAdmin);
+  //     setIsGuest(user.isGuest);
+  //     setIsUser(user.isUser);
+  //   } else {
+  //     setIsAuthenticated(false);
+  //     setIsAdmin(false);
+  //     setIsGuest(false);
+  //     setIsUser(false);
+  //   }
+  // }, [user]);
+
+  // async function getBookmarks() {
+  //   setIsLoading(true);
+  //   try {
+  //     const data = await fetch('/api/user/bookmarks');
+  //     const response = await data.json();
+  //     setBookmarks(response);
+  //     setIsSuccess(true);
+  //     setSuccessMessage('Bookmarks fetched successfully');
+  //   } catch (error) {
+  //     setIsError(true);
+  //     setErrorMessage('Error fetching bookmarks');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     getBookmarks();
+  //   }
+  // }, [isAuthenticated]);
 
   useEffect(() => {
     async function loadShow() {
+      if (!params.id) return; // Skip if no ID is provided
+
       setIsLoading(true);
       try {
+        // Check if we're in development mode without backend
+        if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
+          console.warn('Backend API is not configured. Using mock data');
+          // Set mock data or handle this case as needed
+          setShow(null);
+          return;
+        }
+
         const data = await fetch(`/api/show/${params.id}`);
+        if (!data.ok) {
+          throw new Error(`API responded with status: ${data.status}`);
+        }
         const response = await data.json();
         setShow(response);
         setIsSuccess(true);
         setSuccessMessage('Show loaded successfully');
       } catch (error) {
+        console.error('Error loading show:', error);
         setIsError(true);
         setErrorMessage('Error loading show');
       } finally {
