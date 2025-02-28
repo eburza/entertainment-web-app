@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 import { TMDBResponse } from '../types/interface';
 
 dotenv.config();
