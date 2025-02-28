@@ -2,6 +2,10 @@
 
 A modern full-stack application built with React (TypeScript) for the frontend and Node.js/Express (TypeScript) for the backend.
 
+## Live Demo
+
+Check out the live demo of the application: [Entertainment Web App](https://emilia-burza-entertainment-app.netlify.app/)
+
 ## Project Structure
 
 The project is organized into two main directories:
