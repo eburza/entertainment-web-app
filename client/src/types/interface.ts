@@ -7,9 +7,9 @@ export interface IShow {
   rating: string;
   isTrending: boolean;
   isBookmarked: boolean;
-  isWatched: boolean;
-  isFavorite: boolean;
-  isMovie: boolean;
+  isWatched?: boolean;
+  isFavorite?: boolean;
+  isMovie?: boolean;
 }
 
 export interface IUser {
@@ -24,11 +24,42 @@ export interface IUser {
   isAuthenticated: boolean;
 }
 
+export interface IBookmarkButtonProps {
+  isBookmarked: boolean;
+}
+
 export interface IBookmarkContext {
   bookmarks: {
     movies: IShow[];
     tvSeries: IShow[];
   };
+}
+
+export interface IMediaCardProps {
+  imageUrl: string;
+  variant: 'regular' | 'trending';
+  title: string;
+  year: number;
+  category: 'Movie' | 'TV Series';
+  rating: string;
+  isBookmarked: boolean;
+  isWatched?: boolean;
+  isFavorite?: boolean;
+  isMovie?: boolean;
+}
+
+export interface IMediaCardDataProps {
+  title?: string;
+  year?: number;
+  category?: 'Movie' | 'TV Series';
+  rating?: string;
+  isWatched?: boolean;
+  isFavorite?: boolean;
+}
+
+export interface ISwiperComponentProps {
+  items: IShow[];
+  variant: 'trending' | 'regular';
 }
 
 export interface IAppContext {
