@@ -1,12 +1,18 @@
 import BookmarkButton from './BookmarkButton';
 import MediaCardData from './MediaCardData';
+import { IMediaCardProps } from '../../types/interface';
 
-interface MediaCardProps {
-  imageUrl?: string;
-  variant?: 'regular' | 'trending';
-}
-
-export default function MediaCard({ imageUrl = '', variant = 'regular' }: MediaCardProps) {
+export default function MediaCard({
+  imageUrl = '',
+  variant = 'regular',
+  title,
+  year,
+  category,
+  rating,
+  isBookmarked = false,
+  isWatched = false,
+  isFavorite = false,
+}: IMediaCardProps) {
   const cardStyles = {
     regular: 'aspect-[16/10] min-w-[200px]',
     trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
@@ -18,10 +24,17 @@ export default function MediaCard({ imageUrl = '', variant = 'regular' }: MediaC
       style={{ backgroundImage: `url(${imageUrl})` }}
     >
       <div className="absolute top-4 right-4">
-        <BookmarkButton />
+        <BookmarkButton isBookmarked={isBookmarked} />
       </div>
       <div className="absolute bottom-4 left-4">
-        <MediaCardData />
+        <MediaCardData
+          title={title}
+          year={year}
+          category={category}
+          rating={rating}
+          isWatched={isWatched}
+          isFavorite={isFavorite}
+        />
       </div>
     </div>
   );
