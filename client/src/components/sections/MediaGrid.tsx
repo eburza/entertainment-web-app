@@ -1,20 +1,32 @@
-import MediaCard from '../shared/MediaCard';
-import imageUrl from '../../mockData/assets/thumbnails/dogs/regular/large.jpg';
+import BookmarkButton from '../shared/BookmarkButton';
+import MediaCardData from '../shared/MediaCardData';
+import { IMediaCardProps } from '../../types/interface';
 
-export default function MediaGrid() {
+export default function MediaCard({
+  imageUrl = '',
+  variant = 'regular',
+  title,
+  year,
+  category,
+  rating,
+  isBookmarked = false,
+}: IMediaCardProps) {
+  const cardStyles = {
+    regular: 'aspect-[16/10] min-w-[200px]',
+    trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
+  };
+
   return (
-    <section>
-      <h2 className="text-2xl md:text-3xl font-light mb-6 md:mb-8">Recommended for you</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
-        <MediaCard imageUrl={imageUrl} variant="regular" />
+    <div
+      className={`${cardStyles[variant]} relative bg-cover bg-center rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200`}
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    >
+      <div className="absolute top-4 right-4">
+        <BookmarkButton isBookmarked={isBookmarked} />
       </div>
-    </section>
+      <div className="absolute bottom-4 left-4">
+        <MediaCardData title={title} year={year} category={category} rating={rating} />
+      </div>
+    </div>
   );
 }

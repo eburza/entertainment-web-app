@@ -3,9 +3,12 @@ import { Navigation, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import MediaCard from './MediaCard';
-import imageUrl from '../../mockData/assets/thumbnails/dogs/regular/large.jpg';
+import { ISwiperComponentProps } from '../../types/interface';
 
-export default function SwiperComponent() {
+export default function SwiperComponent({
+  items = [],
+  variant = 'trending',
+}: ISwiperComponentProps) {
   return (
     <div className="relative group px-8">
       <div className="absolute top-1/2 left-0 -translate-y-1/2 z-10">
@@ -38,24 +41,22 @@ export default function SwiperComponent() {
           nextEl: '.swiper-custom-next',
         }}
       >
-        <SwiperSlide className="!w-auto">
-          <MediaCard imageUrl={imageUrl} variant="trending" />
-        </SwiperSlide>
-        <SwiperSlide className="!w-auto">
-          <MediaCard imageUrl={imageUrl} variant="trending" />
-        </SwiperSlide>
-        <SwiperSlide className="!w-auto">
-          <MediaCard imageUrl={imageUrl} variant="trending" />
-        </SwiperSlide>
-        <SwiperSlide className="!w-auto">
-          <MediaCard imageUrl={imageUrl} variant="trending" />
-        </SwiperSlide>
-        <SwiperSlide className="!w-auto">
-          <MediaCard imageUrl={imageUrl} variant="trending" />
-        </SwiperSlide>
-        <SwiperSlide className="!w-auto">
-          <MediaCard imageUrl={imageUrl} variant="trending" />
-        </SwiperSlide>
+        {items.map(item => (
+          <SwiperSlide key={item.id} className="!w-auto">
+            <MediaCard
+              imageUrl={item.thumbnail}
+              variant={variant}
+              title={item.title}
+              year={item.year}
+              rating={item.rating}
+              category={item.category}
+              isBookmarked={item.isBookmarked}
+              isWatched={item.isWatched}
+              isFavorite={item.isFavorite}
+              isMovie={item.isMovie}
+            />
+          </SwiperSlide>
+        ))}
       </Swiper>
 
       <div className="absolute top-1/2 right-0 -translate-y-1/2 z-10">
