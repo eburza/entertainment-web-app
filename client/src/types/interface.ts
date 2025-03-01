@@ -3,13 +3,12 @@ export interface IShow {
   title: string;
   backdrop_path: string;
   year: number;
-  category: 'Movie' | 'TV Series';
+  media_type: 'movie' | 'tv';
   rating: string;
   isTrending: boolean;
   isBookmarked: boolean;
   isWatched?: boolean;
   isFavorite?: boolean;
-  isMovie?: boolean;
 }
 
 export interface IUser {
@@ -37,15 +36,14 @@ export interface IBookmarkContext {
 
 export interface IMediaCardProps {
   backdrop_path: string;
+  media_type: 'movie' | 'tv';
   variant: 'regular' | 'trending';
   title: string;
   year: number;
-  category: 'Movie' | 'TV Series';
   rating: string;
   isBookmarked: boolean;
   isWatched?: boolean;
   isFavorite?: boolean;
-  isMovie?: boolean;
 }
 
 export interface IMediaCardDataProps {
@@ -53,7 +51,7 @@ export interface IMediaCardDataProps {
   imageUrl?: string;
   backdrop_path?: string;
   year?: number;
-  category?: 'Movie' | 'TV Series';
+  media_type?: 'movie' | 'tv';
   rating?: string;
   isWatched?: boolean;
   isFavorite?: boolean;

@@ -7,7 +7,7 @@ export default function MediaCard({
   variant = 'regular',
   title,
   year,
-  category,
+  media_type,
   rating,
   isBookmarked = false,
 }: IMediaCardProps) {
@@ -25,7 +25,7 @@ export default function MediaCard({
         <BookmarkButton isBookmarked={isBookmarked} />
       </div>
       <div className="absolute bottom-4 left-4">
-        <MediaCardData title={title} year={year} category={category} rating={rating} />
+        <MediaCardData title={title} year={year} media_type={media_type} rating={rating} />
       </div>
     </div>
   );

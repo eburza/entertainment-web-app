@@ -14,20 +14,20 @@ const Icon = ({ icon, alt }: IIconProps) => {
 export default function MediaCardData({
   title = 'Untitled',
   year = new Date().getFullYear(),
-  category = 'Movie',
+  media_type = 'movie',
   rating = 'PG',
   isWatched = false,
   isFavorite = false,
 }: IMediaCardDataProps) {
-  const categoryIcon = category === 'TV Series' ? tvSeriesIcon : movieIcon;
+  const categoryIcon = media_type === 'tv' ? tvSeriesIcon : movieIcon;
 
   return (
     <div>
       <div className="flex gap-2 opacity-65 text-sm">
         <p>{year}</p>
         <div className="flex gap-2">
-          <img src={categoryIcon} alt={category} className="w-4 h-4" />
-          <p>{category}</p>
+          <img src={categoryIcon} alt={media_type} className="w-4 h-4" />
+          <p>{media_type}</p>
         </div>
         <p>{rating}</p>
       </div>

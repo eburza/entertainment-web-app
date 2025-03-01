@@ -49,11 +49,10 @@ export default function SwiperComponent({
               title={item.title}
               year={item.year}
               rating={item.rating}
-              category={item.category}
+              media_type={item.media_type}
               isBookmarked={item.isBookmarked}
               isWatched={item.isWatched}
               isFavorite={item.isFavorite}
-              isMovie={item.isMovie}
             />
           </SwiperSlide>
         ))}

@@ -10,7 +10,7 @@ export default function MediaCard({
   variant = 'regular',
   title,
   year,
-  category,
+  media_type,
   rating,
   isBookmarked = false,
   isWatched = false,
@@ -34,7 +34,7 @@ export default function MediaCard({
         <MediaCardData
           title={title}
           year={year}
-          category={category}
+          media_type={media_type}
           rating={rating}
           isWatched={isWatched}
           isFavorite={isFavorite}
