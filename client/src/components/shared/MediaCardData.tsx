@@ -5,13 +5,9 @@ import iconWatchedEmpty from '../../assets/icons/icon-watched-empty.svg';
 import iconWatchedFull from '../../assets/icons/icon-watched-full.svg';
 import iconFavoriteEmpty from '../../assets/icons/icon-favorite-empty.svg';
 import iconFavoriteFull from '../../assets/icons/icon-favorite-full.svg';
+import { IIconProps } from '@/types/interface';
 
-type IconProps = {
-  icon: string;
-  alt: string;
-};
-
-const Icon = ({ icon, alt }: IconProps) => {
+const Icon = ({ icon, alt }: IIconProps) => {
   return <img src={icon} alt={alt} className="w-4 h-4" />;
 };
 

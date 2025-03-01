@@ -1,7 +1,7 @@
 export interface IShow {
   id: string;
   title: string;
-  thumbnail: string;
+  backdrop_path: string;
   year: number;
   category: 'Movie' | 'TV Series';
   rating: string;
@@ -36,7 +36,7 @@ export interface IBookmarkContext {
 }
 
 export interface IMediaCardProps {
-  imageUrl: string;
+  backdrop_path: string;
   variant: 'regular' | 'trending';
   title: string;
   year: number;
@@ -50,11 +50,18 @@ export interface IMediaCardProps {
 
 export interface IMediaCardDataProps {
   title?: string;
+  imageUrl?: string;
+  backdrop_path?: string;
   year?: number;
   category?: 'Movie' | 'TV Series';
   rating?: string;
   isWatched?: boolean;
   isFavorite?: boolean;
+}
+
+export interface IIconProps {
+  icon: string;
+  alt: string;
 }
 
 export interface ISwiperComponentProps {
