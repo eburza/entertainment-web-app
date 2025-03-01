@@ -46,7 +46,7 @@ export default function SwiperComponent({
             <MediaCard
               backdrop_path={(item as any).backdrop_path}
               variant={variant}
-              title={item.title}
+              title={(item as any).title || (item as any).name}
               year={item.year}
               media_type={item.media_type}
               rating={item.vote_average}
