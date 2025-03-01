@@ -4,13 +4,6 @@ const TMDB_API_ACCESS_TOKEN = process.env.REACT_APP_TMDB_API_ACCESS_TOKEN;
 const TMDB_BASE_URL = process.env.REACT_APP_TMDB_BASE_URL;
 const TMDB_API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
-// Debug info - remove in production
-console.log('API Setup:', {
-  baseUrl: TMDB_BASE_URL,
-  tokenAvailable: !!TMDB_API_ACCESS_TOKEN,
-  keyAvailable: !!TMDB_API_KEY,
-});
-
 const options = {
   method: 'GET',
   headers: {
@@ -24,7 +17,6 @@ const options = {
 export async function getAllTrending() {
   try {
     const url = `${TMDB_BASE_URL}/trending/all/day?api_key=${TMDB_API_KEY}`;
-    console.log('Fetching from URL:', url);
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -32,7 +24,6 @@ export async function getAllTrending() {
         status: response.status,
         statusText: response.statusText,
       });
-      // Try to get the error message body for debugging
       const errorText = await response.text();
       console.error('Error response body:', errorText);
       throw new Error(`API responded with status: ${response.status}`);
