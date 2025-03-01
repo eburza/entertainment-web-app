@@ -48,8 +48,8 @@ export default function SwiperComponent({
               variant={variant}
               title={item.title}
               year={item.year}
-              rating={item.rating}
               media_type={item.media_type}
+              rating={item.vote_average}
               isBookmarked={item.isBookmarked}
               isWatched={item.isWatched}
               isFavorite={item.isFavorite}

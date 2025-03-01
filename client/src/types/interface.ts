@@ -4,7 +4,7 @@ export interface IShow {
   backdrop_path: string;
   year: number;
   media_type: 'movie' | 'tv';
-  rating: string;
+  vote_average: number;
   isTrending: boolean;
   isBookmarked: boolean;
   isWatched?: boolean;
@@ -40,7 +40,7 @@ export interface IMediaCardProps {
   variant: 'regular' | 'trending';
   title: string;
   year: number;
-  rating: string;
+  rating: number;
   isBookmarked: boolean;
   isWatched?: boolean;
   isFavorite?: boolean;
@@ -52,7 +52,7 @@ export interface IMediaCardDataProps {
   backdrop_path?: string;
   year?: number;
   media_type?: 'movie' | 'tv';
-  rating?: string;
+  rating?: number;
   isWatched?: boolean;
   isFavorite?: boolean;
 }

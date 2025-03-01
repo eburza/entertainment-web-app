@@ -15,7 +15,7 @@ export default function MediaCardData({
   title = 'Untitled',
   year = new Date().getFullYear(),
   media_type = 'movie',
-  rating = 'PG',
+  rating = 0,
   isWatched = false,
   isFavorite = false,
 }: IMediaCardDataProps) {
@@ -29,7 +29,7 @@ export default function MediaCardData({
           <img src={categoryIcon} alt={media_type} className="w-4 h-4" />
           <p>{media_type}</p>
         </div>
-        <p>{rating}</p>
+        <p>{rating.toFixed(1)}</p>
       </div>
       <p className="text-lg font-bold">{title}</p>
       <div className="flex gap-2">
