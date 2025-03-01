@@ -44,7 +44,7 @@ export default function SwiperComponent({
         {items.map(item => (
           <SwiperSlide key={item.id} className="!w-auto">
             <MediaCard
-              imageUrl={item.thumbnail}
+              backdrop_path={(item as any).backdrop_path}
               variant={variant}
               title={item.title}
               year={item.year}

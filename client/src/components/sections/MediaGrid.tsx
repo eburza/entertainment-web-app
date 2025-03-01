@@ -3,7 +3,7 @@ import MediaCardData from '../shared/MediaCardData';
 import { IMediaCardProps } from '../../types/interface';
 
 export default function MediaCard({
-  imageUrl = '',
+  backdrop_path = '',
   variant = 'regular',
   title,
   year,
@@ -19,7 +19,7 @@ export default function MediaCard({
   return (
     <div
       className={`${cardStyles[variant]} relative bg-cover bg-center rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200`}
-      style={{ backgroundImage: `url(${imageUrl})` }}
+      style={{ backgroundImage: `url(${backdrop_path})` }}
     >
       <div className="absolute top-4 right-4">
         <BookmarkButton isBookmarked={isBookmarked} />

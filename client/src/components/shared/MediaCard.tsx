@@ -2,8 +2,11 @@ import BookmarkButton from './BookmarkButton';
 import MediaCardData from './MediaCardData';
 import { IMediaCardProps } from '../../types/interface';
 
+const TMDB_IMAGE_BASE_URL =
+  process.env.REACT_APP_TMDB_IMAGE_BASE_URL || 'https://image.tmdb.org/t/p/original';
+
 export default function MediaCard({
-  imageUrl = '',
+  backdrop_path,
   variant = 'regular',
   title,
   year,
@@ -17,11 +20,12 @@ export default function MediaCard({
     regular: 'aspect-[16/10] min-w-[200px]',
     trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
   };
+  const fullImageUrl = backdrop_path ? `${TMDB_IMAGE_BASE_URL}${backdrop_path}` : '';
 
   return (
     <div
       className={`${cardStyles[variant]} relative bg-cover bg-center rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200`}
-      style={{ backgroundImage: `url(${imageUrl})` }}
+      style={{ backgroundImage: `url(${fullImageUrl})` }}
     >
       <div className="absolute top-4 right-4">
         <BookmarkButton isBookmarked={isBookmarked} />
@@ -34,6 +38,7 @@ export default function MediaCard({
           rating={rating}
           isWatched={isWatched}
           isFavorite={isFavorite}
+          imageUrl={backdrop_path}
         />
       </div>
     </div>
