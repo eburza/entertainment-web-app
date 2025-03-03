@@ -18,7 +18,7 @@ export default function MediaCard({
 }: IMediaCardProps) {
   const cardStyles = {
     regular: 'aspect-[16/10] w-full',
-    trending: 'aspect-[16/9] w-[240px] sm:w-[280px] md:w-[320px] lg:w-[400px]',
+    trending: 'aspect-[16/9] min-w-[460px]',
     //aspect-[16/9] w-full sm:w-[280px] md:w-[320px] lg:w-[400px]'
     // trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
   };
@@ -29,10 +29,11 @@ export default function MediaCard({
       className={`${cardStyles[variant]} relative bg-cover bg-center rounded-lg overflow-hidden hover:scale-105 transition-transform duration-200`}
       style={{ backgroundImage: `url(${fullImageUrl})` }}
     >
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
       <div className="absolute top-4 right-4">
         <BookmarkButton isBookmarked={isBookmarked} />
       </div>
-      <div className="absolute bottom-4 left-4">
+      <div className="absolute bottom-4 left-4 drop-shadow-lg">
         <MediaCardData
           title={title}
           year={year}

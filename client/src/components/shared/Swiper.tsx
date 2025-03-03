@@ -34,27 +34,29 @@ export default function SwiperComponent({
       <Swiper
         modules={[Navigation, Mousewheel]}
         slidesPerView="auto"
-        spaceBetween={10}
+        spaceBetween={20}
         mousewheel={true}
         navigation={{
           prevEl: '.swiper-custom-prev',
           nextEl: '.swiper-custom-next',
         }}
-        className="py-1"
+        className="py-4 px-2"
       >
         {items.map(item => (
-          <SwiperSlide key={item.id} className="!w-auto">
-            <MediaCard
-              backdrop_path={item.backdrop_path}
-              variant={variant}
-              title={item.title || item.name}
-              year={item.year}
-              media_type={item.media_type}
-              rating={item.vote_average}
-              isBookmarked={item.isBookmarked}
-              isWatched={item.isWatched}
-              isFavorite={item.isFavorite}
-            />
+          <SwiperSlide key={item.id} className="!w-auto overflow-visible">
+            <div className="p-1">
+              <MediaCard
+                backdrop_path={item.backdrop_path}
+                variant={variant}
+                title={item.title || item.name}
+                year={item.year}
+                media_type={item.media_type}
+                rating={item.vote_average}
+                isBookmarked={item.isBookmarked}
+                isWatched={item.isWatched}
+                isFavorite={item.isFavorite}
+              />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
