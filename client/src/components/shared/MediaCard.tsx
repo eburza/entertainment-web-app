@@ -17,8 +17,10 @@ export default function MediaCard({
   isFavorite = false,
 }: IMediaCardProps) {
   const cardStyles = {
-    regular: 'aspect-[16/10] min-w-[200px]',
-    trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
+    regular: 'aspect-[16/10] w-full',
+    trending: 'aspect-[16/9] w-[240px] sm:w-[280px] md:w-[320px] lg:w-[400px]',
+    //aspect-[16/9] w-full sm:w-[280px] md:w-[320px] lg:w-[400px]'
+    // trending: 'aspect-[16/9] min-w-[300px] md:min-w-[400px] lg:min-w-[450px]',
   };
   const fullImageUrl = backdrop_path ? `${TMDB_IMAGE_BASE_URL}${backdrop_path}` : '';
 
