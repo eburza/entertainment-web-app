@@ -70,8 +70,8 @@ export interface ISwiperComponentProps {
 export interface IAppContext {
   user: IUser | null;
   setUser: (user: IUser | null) => void;
-  show: IShow | null;
-  setShow: (show: IShow | null) => void;
+  shows: IShow[] | null;
+  setShows: React.Dispatch<React.SetStateAction<IShow[]>>;
   bookmarks: IBookmarkContext | null;
   setBookmarks: (bookmarks: IBookmarkContext | null) => void;
   trending: IShow[];

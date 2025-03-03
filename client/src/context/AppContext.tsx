@@ -1,12 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { IAppContext, IBookmarkContext, IUser, IShow } from '../types/interface';
-import { getAllTrending } from '../services/tmdb';
+import { getAllTrending, getAllShows } from '../services/tmdb';
 import { useParams } from 'react-router-dom';
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
-  const [show, setShow] = useState<IShow | null>(null);
+  const [shows, setShows] = useState<IShow[]>([]);
   const [bookmarks, setBookmarks] = useState<IBookmarkContext | null>(null);
   const [trending, setTrending] = useState<IShow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,29 +22,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams();
 
   useEffect(() => {
-    async function getAllShows() {
+    async function getShows() {
       try {
-        // Check if we're in development mode without backend
-        if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
-          console.warn(
-            'Backend API is not configured for getAllShows. Using mock data or skipping'
-          );
-          return;
-        }
-
-        const data = await fetch('/api/shows');
-        if (!data.ok) {
-          throw new Error(`API responded with status: ${data.status}`);
-        }
-        const response = await data.json();
-        setShow(response);
+        setIsLoading(true);
+        const data = await getAllShows();
+        setShows(data as IShow[]);
+        setIsError(false);
+        setErrorMessage('');
       } catch (error) {
-        console.error('Error fetching all shows:', error);
-        // Silently fail as this might not be critical
+        console.error('Error in AppContext getShows:', error);
+        setIsError(true);
+        setErrorMessage('Error fetching shows');
+        setShows([]);
+      } finally {
+        setIsLoading(false);
       }
     }
 
-    getAllShows();
+    getShows();
   }, []);
 
   useEffect(() => {
