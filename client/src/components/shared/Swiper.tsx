@@ -10,7 +10,7 @@ export default function SwiperComponent({
   variant = 'trending',
 }: ISwiperComponentProps) {
   return (
-    <div className="relative group px-8">
+    <div className="relative group">
       <div className="absolute top-1/2 left-0 -translate-y-1/2 z-10">
         <button className="swiper-custom-prev w-12 h-12 bg-dark-light/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <svg
@@ -34,19 +34,20 @@ export default function SwiperComponent({
       <Swiper
         modules={[Navigation, Mousewheel]}
         slidesPerView="auto"
-        spaceBetween={40}
+        spaceBetween={10}
         mousewheel={true}
         navigation={{
           prevEl: '.swiper-custom-prev',
           nextEl: '.swiper-custom-next',
         }}
+        className="py-1"
       >
         {items.map(item => (
           <SwiperSlide key={item.id} className="!w-auto">
             <MediaCard
-              backdrop_path={(item as any).backdrop_path}
+              backdrop_path={item.backdrop_path}
               variant={variant}
-              title={(item as any).title || (item as any).name}
+              title={item.title || item.name}
               year={item.year}
               media_type={item.media_type}
               rating={item.vote_average}

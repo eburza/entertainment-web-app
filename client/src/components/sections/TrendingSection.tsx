@@ -22,7 +22,7 @@ export default function TrendingSection() {
 
   return (
     <section className="mb-10">
-      <h2 className="text-3xl font-light mb-8">Trending</h2>
+      <h2 className="text-3xl font-bold mb-8">Trending</h2>
       {trending.length > 0 ? (
         <div className="relative overflow-hidden">
           <SwiperComponent items={trending} variant="trending" />
