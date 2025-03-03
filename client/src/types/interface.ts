@@ -1,4 +1,5 @@
 export interface IShow {
+  name: string;
   id: string;
   title: string;
   backdrop_path: string;

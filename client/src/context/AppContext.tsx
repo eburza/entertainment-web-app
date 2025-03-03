@@ -158,7 +158,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
           console.warn('Backend API is not configured. Using mock data');
           // Set mock data or handle this case as needed
-          setShow(null);
+          setShows([]);
           return;
         }
 
@@ -167,7 +167,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           throw new Error(`API responded with status: ${data.status}`);
         }
         const response = await data.json();
-        setShow(response);
+        setShows(response);
         setIsSuccess(true);
         setSuccessMessage('Show loaded successfully');
       } catch (error) {
@@ -187,8 +187,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         user,
         setUser,
-        show,
-        setShow,
+        shows,
+        setShows,
         bookmarks,
         setBookmarks,
         isLoading,
