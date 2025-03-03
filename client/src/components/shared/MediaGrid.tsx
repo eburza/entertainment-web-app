@@ -1,8 +1,8 @@
-import BookmarkButton from '../shared/BookmarkButton';
-import MediaCardData from '../shared/MediaCardData';
+import BookmarkButton from './BookmarkButton';
+import MediaCardData from './MediaCardData';
 import { IMediaCardProps } from '../../types/interface';
 
-export default function MediaCard({
+export default function MediaGrid({
   backdrop_path = '',
   variant = 'regular',
   title,
