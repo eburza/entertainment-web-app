@@ -4,26 +4,19 @@ import { ApiErrorClass } from '../types/apiResponseType';
 
 const router = express.Router();
 
-// Get all shows and trending
+// Get movies only
 router.get('/', async (req, res) => {
   try {
-    const [shows, trending] = await Promise.all([
-      tmdbService.getAllShows(),
-      tmdbService.getAllTrending()
-    ]);
-    
+    const movies = await tmdbService.getMovies();
     res.json({
       status: 200,
-      data: {
-        shows,
-        trending
-      }
+      data: movies
     });
   } catch (error) {
-    console.error('Error fetching shows and trending:', error);
+    console.error('Error fetching movies:', error);
     res.status(500).json({
       status: 500,
-      error: 'Failed to fetch shows and trending'
+      error: 'Failed to fetch movies'
     });
   }
 });
