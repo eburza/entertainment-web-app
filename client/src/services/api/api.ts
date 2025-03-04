@@ -2,7 +2,7 @@ import axiosConfig from './axiosConfig';
 import { ApiResponse, ApiErrorClass } from '../../types/apiResponseType';
 import { IShow } from '../../types/interface';
 
-// Define your API endpoints
+// Define API endpoints
 const API_ENDPOINTS = {
   GET_SHOWS: '/',
   GET_MOVIES: '/movies',

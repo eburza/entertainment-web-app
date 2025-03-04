@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc && npm run copy-files",
-    "copy-files": "mkdir -p dist/functions && cp -r dist/src/functions/* dist/functions/ 2>/dev/null || true && for dir in routes config middleware models services; do if [ -d \"dist/src/$dir\" ]; then mkdir -p \"dist/$dir\" && cp -r \"dist/src/$dir\"/* \"dist/$dir/\" || true; fi; done",
+    "copy-files": "mkdir -p dist/functions && cp -r dist/src/functions/* dist/functions/ 2>/dev/null || true && for dir in routes config middleware models services types utils controllers; do if [ -d \"dist/src/$dir\" ]; then mkdir -p \"dist/$dir\" && cp -r \"dist/src/$dir\"/* \"dist/$dir/\" || true; fi; done",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
