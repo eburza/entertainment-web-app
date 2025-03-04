@@ -1,7 +1,6 @@
 [build]
   command = "CI=false npm run build"
   publish = "build"
-  functions = "netlify/functions"
 
 [dev]
   command = "npm run start"
@@ -23,7 +22,7 @@
 # SPA configuration - always return index.html for all routes
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "https://emilia-burza-entertainment-app-server.netlify.app/:splat"
   status = 200
 
 [[redirects]]
