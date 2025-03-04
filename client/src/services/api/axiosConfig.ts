@@ -52,35 +52,190 @@ axiosConfig.interceptors.response.use(
     return response;
   },
   error => {
-    // Handle network errors more gracefully
-    if (!error.response) {
+    // Check if we should use fallback data (either in development or if REACT_APP_USE_FALLBACK is true)
+    const shouldUseFallback =
+      process.env.NODE_ENV === 'development' || process.env.REACT_APP_USE_FALLBACK === 'true';
+
+    // Handle both network errors AND 404 responses
+    if (!error.response || (error.response && error.response.status === 404)) {
       if (process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console
-        console.error('Network error or CORS issue:', error.message);
+        console.warn('API error or 404:', error.message || 'Not Found');
       }
 
-      // Create a mock response for development/fallback
-      if (process.env.NODE_ENV === 'development' || process.env.REACT_APP_USE_FALLBACK === 'true') {
+      // Create a mock response if fallback is enabled
+      if (shouldUseFallback) {
         if (process.env.NODE_ENV !== 'production') {
           // eslint-disable-next-line no-console
-          console.warn('Using fallback data due to API connection issue');
+          console.warn('Using fallback data for:', error.config.url);
         }
 
-        const url = error.config.url;
-        let mockData;
+        const url = error.config.url || '';
+        let mockResponse;
 
-        // Return different mock data based on endpoint
-        if (url?.includes('movies')) {
-          mockData = { status: true, data: [{ title: 'Mock Movie', id: '1' }] };
-        } else if (url?.includes('tv')) {
-          mockData = { status: true, data: [{ title: 'Mock TV Show', id: '2' }] };
+        // Enhanced mock data that matches the API response format
+        if (url.includes('movies')) {
+          mockResponse = {
+            status: true,
+            data: {
+              shows: [
+                {
+                  id: 'm1',
+                  title: 'Mock Movie 1',
+                  category: 'Movie',
+                  isTrending: false,
+                  rating: 'PG',
+                  year: 2023,
+                  thumbnail: '/placeholder.jpg',
+                },
+                {
+                  id: 'm2',
+                  title: 'Mock Movie 2',
+                  category: 'Movie',
+                  isTrending: true,
+                  rating: 'PG-13',
+                  year: 2024,
+                  thumbnail: '/placeholder.jpg',
+                },
+              ],
+            },
+          };
+        } else if (url.includes('tv')) {
+          mockResponse = {
+            status: true,
+            data: {
+              shows: [
+                {
+                  id: 't1',
+                  title: 'Mock TV Show 1',
+                  category: 'TV Series',
+                  isTrending: false,
+                  rating: 'PG',
+                  year: 2023,
+                  thumbnail: '/placeholder.jpg',
+                },
+                {
+                  id: 't2',
+                  title: 'Mock TV Show 2',
+                  category: 'TV Series',
+                  isTrending: true,
+                  rating: 'PG-13',
+                  year: 2024,
+                  thumbnail: '/placeholder.jpg',
+                },
+              ],
+            },
+          };
+        } else if (url.includes('trending') || url.includes('?trending=true')) {
+          mockResponse = {
+            status: true,
+            data: {
+              trending: [
+                {
+                  id: 'tr1',
+                  title: 'Trending Show 1',
+                  category: 'Movie',
+                  isTrending: true,
+                  rating: 'PG',
+                  year: 2023,
+                  thumbnail: '/placeholder.jpg',
+                },
+                {
+                  id: 'tr2',
+                  title: 'Trending Show 2',
+                  category: 'TV Series',
+                  isTrending: true,
+                  rating: 'PG-13',
+                  year: 2024,
+                  thumbnail: '/placeholder.jpg',
+                },
+              ],
+            },
+          };
+        } else if (url.includes('bookmarked')) {
+          mockResponse = {
+            status: true,
+            data: {
+              shows: [
+                {
+                  id: 'b1',
+                  title: 'Bookmarked Show 1',
+                  category: 'Movie',
+                  isTrending: false,
+                  rating: 'PG',
+                  year: 2023,
+                  thumbnail: '/placeholder.jpg',
+                  isBookmarked: true,
+                },
+                {
+                  id: 'b2',
+                  title: 'Bookmarked Show 2',
+                  category: 'TV Series',
+                  isTrending: false,
+                  rating: 'PG-13',
+                  year: 2024,
+                  thumbnail: '/placeholder.jpg',
+                  isBookmarked: true,
+                },
+              ],
+            },
+          };
+        } else if (url.includes('search')) {
+          mockResponse = {
+            status: true,
+            data: {
+              shows: [
+                {
+                  id: 's1',
+                  title: 'Search Result 1',
+                  category: 'Movie',
+                  isTrending: false,
+                  rating: 'PG',
+                  year: 2023,
+                  thumbnail: '/placeholder.jpg',
+                },
+                {
+                  id: 's2',
+                  title: 'Search Result 2',
+                  category: 'TV Series',
+                  isTrending: false,
+                  rating: 'PG-13',
+                  year: 2024,
+                  thumbnail: '/placeholder.jpg',
+                },
+              ],
+            },
+          };
         } else {
-          mockData = { status: true, data: [] };
+          // Default shows for root endpoint
+          mockResponse = {
+            status: true,
+            data: {
+              shows: [
+                {
+                  id: '1',
+                  title: 'Default Show 1',
+                  category: 'Movie',
+                  isTrending: false,
+                  rating: 'PG',
+                  year: 2023,
+                  thumbnail: '/placeholder.jpg',
+                },
+                {
+                  id: '2',
+                  title: 'Default Show 2',
+                  category: 'TV Series',
+                  isTrending: true,
+                  rating: 'PG-13',
+                  year: 2024,
+                  thumbnail: '/placeholder.jpg',
+                },
+              ],
+            },
+          };
         }
 
-        return Promise.resolve({
-          data: mockData,
-        });
+        return Promise.resolve({ data: mockResponse });
       }
     }
 
