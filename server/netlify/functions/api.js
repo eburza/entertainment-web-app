@@ -371,16 +371,48 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
-// Routes
-app.use('/', showsRouter);
-app.use('/bookmarked', bookmarkedRouter);
-app.use('/tv', tvRouter);
-app.use('/movies', moviesRouter);
-app.use('/search', searchRouter);
+// Log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`[DEBUG] Received request: ${req.method} ${req.url}`);
+  console.log(`[DEBUG] Request query:`, req.query);
+  next();
+});
+
+// Base routes - Netlify functions receive requests at /.netlify/functions/api
+// but our front-end might be calling different paths
+const router = express.Router();
+
+// Main routes
+router.use('/', showsRouter);
+router.use('/bookmarked', bookmarkedRouter);
+router.use('/tv', tvRouter);
+router.use('/movies', moviesRouter);
+router.use('/search', searchRouter);
+
+// Health check route
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'API is running' });
+});
+
+// Mount the router on multiple paths to handle different client configurations
+app.use('/', router);                        // Direct root access
+app.use('/.netlify/functions/api', router);  // Netlify function path
+
+// Add a catch-all route for debugging
+app.use('*', (req, res) => {
+  console.log(`[DEBUG] No route matched for ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    status: false,
+    error: {
+      message: `Route not found: ${req.originalUrl}`,
+      status: 404
+    }
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Error in request:', err.stack);
   res.status(err.statusCode || 500).json({
     status: false,
     error: {
@@ -390,18 +422,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Health check route
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'API is running' });
-});
-
 // Wrap the Express app with serverless
 const handler = serverless(app);
 
 // Export the handler function
 exports.handler = async (event, context) => {
   // Log the request for debugging
-  console.log(`API request: ${event.httpMethod} ${event.path}`);
+  console.log(`API request received: ${event.httpMethod} ${event.path}`);
+  console.log('Request headers:', JSON.stringify(event.headers));
+  console.log('Request queryStringParameters:', JSON.stringify(event.queryStringParameters));
   
   // Wait for the response
   return await handler(event, context);
