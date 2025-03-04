@@ -2,7 +2,7 @@ const path = require('path');
 const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios');
+const https = require('https');
 
 // Set up environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -17,15 +17,49 @@ const TMDB_API_ACCESS_TOKEN = process.env.TMDB_API_ACCESS_TOKEN;
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL || 'https://api.themoviedb.org/3';
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
-// Create the axios instance for TMDB
-const tmdbApi = axios.create({
-  baseURL: TMDB_BASE_URL,
-  headers: {
-    accept: 'application/json',
-    Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
-    'Content-Type': 'application/json',
-  },
-});
+// Create a simple HTTP request function using Node.js built-in https module
+const makeHttpRequest = (url) => {
+  return new Promise((resolve, reject) => {
+    console.log(`Making request to: ${url}`);
+    
+    const options = {
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      }
+    };
+    
+    https.get(url, options, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(data);
+          resolve({ data: parsedData });
+        } catch (e) {
+          console.error('Error parsing response:', e);
+          reject(new Error('Invalid JSON response'));
+        }
+      });
+    }).on('error', (err) => {
+      console.error('Request error:', err.message);
+      reject(err);
+    });
+  });
+};
+
+// Create TMDB API client - avoid using .create method which might not be available
+const tmdbApi = {
+  get: async (endpoint) => {
+    const url = `${TMDB_BASE_URL}${endpoint}`;
+    return makeHttpRequest(url);
+  }
+};
 
 // Simple TMDB service
 const tmdbService = {
