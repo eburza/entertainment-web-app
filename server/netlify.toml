@@ -5,6 +5,8 @@
 
 [functions]
   directory = "dist/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["express", "mongoose"]
 
 [[redirects]]
   from = "/*"

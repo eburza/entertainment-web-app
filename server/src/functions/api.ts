@@ -2,25 +2,28 @@ import express from 'express';
 import serverless from 'serverless-http';
 import path from 'path';
 import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
-import showsRouter from '../routes/shows';
-import bookmarkedRouter from '../routes/bookmarked';
-import tvRouter from '../routes/tv';
-import moviesRouter from '../routes/movies';
-import searchRouter from '../routes/search';
-import connectToDatabase from '../config/db';
-import errorHandler from '../middleware/error';
-import logging from '../config/logger';
 import cors from 'cors';
 
+// Load environment variables first
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+// Import routes - using path resolution that works with Netlify Functions
+const showsRouter = require('../../src/routes/shows');
+const bookmarkedRouter = require('../../src/routes/bookmarked');
+const tvRouter = require('../../src/routes/tv');
+const moviesRouter = require('../../src/routes/movies');
+const searchRouter = require('../../src/routes/search');
+
+// Import other components
+const connectToDatabase = require('../../src/config/db');
+const errorHandler = require('../../src/middleware/error');
+const logging = require('../../src/config/logger');
+
 // Connect to the database
-connectToDatabase();
+connectToDatabase.default();
 
 // Logger
-logging();
+logging.default();
 
 // Create the express app
 const app = express();
@@ -32,14 +35,22 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/shows', showsRouter);
-app.use('/api/bookmarked', bookmarkedRouter);
-app.use('/api/tv', tvRouter);
-app.use('/api/movies', moviesRouter);
-app.use('/api/search', searchRouter);
+app.use('/api/shows', showsRouter.default);
+app.use('/api/bookmarked', bookmarkedRouter.default);
+app.use('/api/tv', tvRouter.default);
+app.use('/api/movies', moviesRouter.default);
+app.use('/api/search', searchRouter.default);
+
+// Basic health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'API is running'
+  });
+});
 
 // Error handler
-app.use(errorHandler);
+app.use(errorHandler.default);
 
 // Export the serverless function
 export const handler = serverless(app); 
