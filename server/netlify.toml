@@ -3,6 +3,11 @@
   publish = "dist"
   command = "npm install && npm run build"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["express", "mongoose"]
+
 [dev]
   port = 3001
   autoLaunch = true
@@ -23,10 +28,10 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Standard API routes
+# API routes redirect to the serverless function
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/api/:splat"
   status = 200
 
 [context.production.environment]
