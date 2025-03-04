@@ -266,8 +266,14 @@ const tmdbService = {
 // Create Express app
 const app = express();
 
-// Enable CORS
-app.use(cors());
+// Configure CORS properly
+app.use(cors({
+  origin: ['https://emilia-burza-entertainment-app.netlify.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400
+}));
 
 // Parse JSON request body
 app.use(express.json());
@@ -278,6 +284,13 @@ app.use((req, res, next) => {
   console.log('Query:', req.query);
   console.log('Path:', req.path);
   console.log('Original URL:', req.originalUrl);
+  
+  // Set CORS headers manually to ensure they're applied
+  res.header('Access-Control-Allow-Origin', 'https://emilia-burza-entertainment-app.netlify.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
   next();
 });
 
@@ -290,6 +303,13 @@ app.get('/health', (req, res) => {
 app.get('/', async (req, res) => {
   try {
     console.log('GET / - Fetching trending and all shows');
+    
+    // Check if we're getting a trending request
+    if (req.query.trending === 'true') {
+      console.log('Fetching trending shows for root request with trending=true param');
+      const trending = await tmdbService.getAllTrending();
+      return res.json(trending);
+    }
     
     const [trending, allShows] = await Promise.all([
       tmdbService.getAllTrending(),
@@ -372,13 +392,30 @@ app.use((err, req, res, next) => {
 
 // Export the handler function
 const handler = serverless(app, {
-  basePath: '/api',
+  basePath: '/.netlify/functions/api',
 });
 
 // Handle function invocation
 exports.handler = async (event, context) => {
   // Log the event for debugging
-  console.log('Event:', JSON.stringify(event.path));
+  console.log('Event path:', event.path);
+  console.log('Event httpMethod:', event.httpMethod);
+  console.log('Event headers:', JSON.stringify(event.headers));
+  
+  // Handle OPTIONS requests for CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://emilia-burza-entertainment-app.netlify.app',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400'
+      },
+      body: ''
+    };
+  }
 
   try {
     // Normalize the path
@@ -395,11 +432,27 @@ exports.handler = async (event, context) => {
     console.log('Normalized path:', event.path);
     
     // Call the serverless handler
-    return await handler(event, context);
+    const response = await handler(event, context);
+    
+    // Ensure CORS headers are in the response
+    if (!response.headers) {
+      response.headers = {};
+    }
+    
+    response.headers['Access-Control-Allow-Origin'] = 'https://emilia-burza-entertainment-app.netlify.app';
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+    response.headers['Access-Control-Allow-Credentials'] = 'true';
+    
+    return response;
   } catch (error) {
     console.error('Error in handler:', error);
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://emilia-burza-entertainment-app.netlify.app',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ error: 'Server error', message: error.message })
     };
   }
