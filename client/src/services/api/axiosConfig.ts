@@ -5,7 +5,7 @@ const axiosConfig = axios.create({
   // Use the correct API URL - now with the Netlify Function path
   baseURL:
     process.env.REACT_APP_API_URL ||
-    'https://emilia-burza-entertainment-app-server.netlify.app/.netlify/functions/api',
+    'https://emilia-burza-entertainment-app-server.netlify.app/api',
   headers: {
     'Content-Type': 'application/json',
   },

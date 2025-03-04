@@ -432,6 +432,16 @@ exports.handler = async (event, context) => {
   console.log('Request headers:', JSON.stringify(event.headers));
   console.log('Request queryStringParameters:', JSON.stringify(event.queryStringParameters));
   
+  // Modify the path to remove the Netlify function path prefix if it exists
+  // This is necessary because Netlify functions receive requests at /.netlify/functions/api
+  // but our code expects paths like /movies, /tv, etc.
+  if (event.path.startsWith('/.netlify/functions/api')) {
+    const originalPath = event.path;
+    // Strip the function path prefix
+    event.path = event.path.replace('/.netlify/functions/api', '') || '/';
+    console.log(`Modified path from ${originalPath} to ${event.path}`);
+  }
+  
   // Wait for the response
   return await handler(event, context);
 }; 
