@@ -3,6 +3,13 @@ import Joi from 'joi';
 import { IShow } from '../types/interface';
 
 const showSchema = new Schema<IShow>({
+  id: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    index: true,
+  },
   title: {
     type: String,
     required: true,
@@ -11,7 +18,15 @@ const showSchema = new Schema<IShow>({
     minlength: 1,
     maxlength: 255
   },
-  thumbnail: {
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    index: true,
+    minlength: 1,
+    maxlength: 255
+  },
+  backdrop_path: {
     type: String,
     required: true,
     minlength: 1,
@@ -23,13 +38,13 @@ const showSchema = new Schema<IShow>({
     min: 1900,
     max: new Date().getFullYear()
   },
-  category: {
+  media_type: {
     type: String,
     required: true,
-    enum: ['Movie', 'TV Series']
+    enum: ['movie', 'tv']
   },
-  rating: {
-    type: String,
+  vote_average: {
+    type: Number,
     required: true
   },
   isTrending: {
@@ -37,6 +52,14 @@ const showSchema = new Schema<IShow>({
     default: false,
   },
   isBookmarked: {
+    type: Boolean,
+    default: false
+  },
+  isWatched: {
+    type: Boolean,
+    default: false
+  },
+  isFavorite: {
     type: Boolean,
     default: false
   }
@@ -60,11 +83,11 @@ const validateShow = (show: IShow) => {
   const { error } = showValidationSchema.validate(show);
   if (error) return { error: error.details[0].message };
   
-  if (!show._id || !Types.ObjectId.isValid(show._id)) {
+  if (!show.id || !Types.ObjectId.isValid(show.id)) {
     return { error: 'Invalid show ID' };
   }
 
-  if (!show.title || !show.thumbnail || !show.year || !show.category || !show.rating) {
+  if (!show.title || !show.backdrop_path || !show.year || !show.media_type || !show.vote_average) {
     return { error: 'Missing required fields' };
   }
 

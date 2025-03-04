@@ -1,8 +1,14 @@
 import { Schema, model } from 'mongoose';
-import { Show } from './Show';
 import { IUser } from '../types/interface';
 
 const userSchema = new Schema<IUser>({
+  id: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    index: true,
+  },
   name: {
     type: String,
     index: true,
@@ -31,9 +37,21 @@ const userSchema = new Schema<IUser>({
       'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
     ]
   },
-  isBookmarked: {
-    type: [Show],
-    ref: 'Show'
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  isGuest: {
+    type: Boolean,
+    default: false
+  },
+  isUser: {
+    type: Boolean,
+    default: true
+  },
+  isAuthenticated: {
+    type: Boolean,
+    default: false
   }
 });
 
