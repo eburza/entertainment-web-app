@@ -18,8 +18,11 @@ const axiosConfig = axios.create({
 //axios interceptors
 axiosConfig.interceptors.request.use(
   config => {
-    // Add debug logging
-    console.log(`Making API request to: ${config.baseURL}${config.url}`);
+    // Only log in development environment to avoid ESLint errors
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.log(`Making API request to: ${config.baseURL}${config.url}`);
+    }
 
     // Don't add CORS headers client-side - these are set by the server
     // Removing this line as browsers block these headers in requests
@@ -35,7 +38,10 @@ axiosConfig.interceptors.request.use(
     return config;
   },
   error => {
-    console.error('Error in request interceptor:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error('Error in request interceptor:', error);
+    }
     return Promise.reject(error);
   }
 );
@@ -48,10 +54,18 @@ axiosConfig.interceptors.response.use(
   error => {
     // Handle network errors more gracefully
     if (!error.response) {
-      console.error('Network error or CORS issue:', error.message);
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.error('Network error or CORS issue:', error.message);
+      }
+
       // Create a mock response for development/fallback
       if (process.env.NODE_ENV === 'development' || process.env.REACT_APP_USE_FALLBACK === 'true') {
-        console.warn('Using fallback data due to API connection issue');
+        if (process.env.NODE_ENV !== 'production') {
+          // eslint-disable-next-line no-console
+          console.warn('Using fallback data due to API connection issue');
+        }
+
         const url = error.config.url;
         let mockData;
 
@@ -70,7 +84,10 @@ axiosConfig.interceptors.response.use(
       }
     }
 
-    console.error('API Error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error('API Error:', error);
+    }
     return Promise.reject(error);
   }
 );
