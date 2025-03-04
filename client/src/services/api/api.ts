@@ -69,7 +69,7 @@ const getTvSeriesDetails = async (tvId: string): Promise<ApiResponse<IShow>> => 
 // Get trending shows
 const getTrending = async (): Promise<ApiResponse<IShow[]>> => {
   try {
-    const response = await axiosConfig.get(API_ENDPOINTS.GET_TRENDING);
+    const response = await axiosConfig.get(`${API_ENDPOINTS.GET_TRENDING}?trending=true`);
     return {
       status: response.data.status,
       data: response.data.data.trending,

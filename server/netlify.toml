@@ -8,12 +8,22 @@
   node_bundler = "esbuild"
   external_node_modules = ["express", "mongoose"]
 
+# Special handling for OPTIONS requests (CORS preflight)
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api"
+  status = 204
+  force = true
+  conditions = {method = "OPTIONS"}
+  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
+
 # Redirect all requests to the API function
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/api"
   status = 200
   force = true
+  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
 
 # Add CORS headers to all responses
 [[headers]]
@@ -23,14 +33,6 @@
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     Access-Control-Allow-Credentials = "true"
-
-# Special handling for OPTIONS requests (CORS preflight)
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/api"
-  status = 204
-  force = true
-  conditions = {method = "OPTIONS"}
 
 [dev]
   port = 3001 
