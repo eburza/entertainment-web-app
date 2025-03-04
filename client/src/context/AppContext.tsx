@@ -40,7 +40,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setIsLoading(true);
         const data = await getAllShows();
-        setShows(data as IShow[]);
+        setShows(data as unknown as IShow[]);
         setIsError(false);
         setErrorMessage('');
       } catch (error) {
@@ -62,7 +62,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setIsLoading(true);
         const data = await getAllTrending();
-        setTrending(data as IShow[]);
+        setTrending(data as unknown as IShow[]);
         setIsError(false);
         setErrorMessage('');
       } catch (error) {
@@ -83,7 +83,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     async function fetchMovies() {
       try {
         const data = await getMovies();
-        setMovies(data as IShow[]);
+        setMovies(data as unknown as IShow[]);
       } catch (error) {
         console.error('Error in AppContext getMovies:', error);
         setIsError(true);
@@ -102,7 +102,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     async function fetchTvSeries() {
       try {
         const data = await getTvSeries();
-        setTvSeries(data as IShow[]);
+        setTvSeries(data as unknown as IShow[]);
       } catch (error) {
         console.error('Error in AppContext getTvSeries:', error);
         setIsError(true);

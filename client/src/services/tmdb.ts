@@ -32,8 +32,14 @@ export async function getAllShows() {
     }
     const [moviesData, tvData] = await Promise.all([moviesResponse.json(), tvResponse.json()]);
 
-    const moviesReceived = moviesData.results;
-    const tvReceived = tvData.results;
+    const moviesReceived = moviesData.results.map((movie: TMDBResponse) => ({
+      ...movie,
+      media_type: 'movie',
+    }));
+    const tvReceived = tvData.results.map((series: TMDBResponse) => ({
+      ...series,
+      media_type: 'tv',
+    }));
 
     const allShows = [...moviesReceived, ...tvReceived].sort(() => Math.random() - 0.5);
 
@@ -60,8 +66,12 @@ export async function getMovies() {
       throw new Error(`API responded with status: ${response.status}`);
     }
 
-    const data = (await response.json()) as TMDBResponse;
-    return data.results;
+    const data = (await response.json()) as { results: TMDBResponse[] };
+    const moviesWithType = data.results.map(movies => ({
+      ...movies,
+      media_type: 'movie',
+    }));
+    return moviesWithType;
   } catch (error) {
     console.error('Error fetching movies:', error);
     throw error;
@@ -84,8 +94,12 @@ export async function getTvSeries() {
       throw new Error(`API responded with status: ${response.status}`);
     }
 
-    const data = (await response.json()) as TMDBResponse;
-    return data.results;
+    const data = (await response.json()) as { results: TMDBResponse[] };
+    const tvSeriesWithType = data.results.map(series => ({
+      ...series,
+      media_type: 'tv',
+    }));
+    return tvSeriesWithType;
   } catch (error) {
     console.error('Error fetching movies:', error);
     throw error;
