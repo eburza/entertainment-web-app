@@ -3,6 +3,7 @@ const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
 const https = require('https');
+const axios = require('axios');
 
 // Set up environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -53,15 +54,21 @@ const makeHttpRequest = (url) => {
   });
 };
 
-// Create TMDB API client - avoid using .create method which might not be available
-const tmdbApi = {
-  get: async (endpoint) => {
-    const url = `${TMDB_BASE_URL}${endpoint}`;
-    return makeHttpRequest(url);
-  }
-};
+// Create axios instance for TMDB API
+const tmdbApi = axios.create({
+  baseURL: TMDB_BASE_URL,
+  headers: TMDB_API_ACCESS_TOKEN
+    ? {
+        Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      }
+    : {
+        'Content-Type': 'application/json',
+      },
+  params: TMDB_API_KEY ? { api_key: TMDB_API_KEY } : {},
+});
 
-// Simple TMDB service
+// TMDB service for fetching shows data
 const tmdbService = {
   // Get all shows (movies and TV series)
   async getAllShows() {
@@ -72,26 +79,84 @@ const tmdbService = {
         tmdbApi.get('/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc')
       ]);
 
-      const moviesReceived = moviesResponse.data.results.map(movie => ({
-        id: movie.id,
-        title: movie.title || movie.name,
-        thumbnail: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-        year: new Date(movie.release_date || movie.first_air_date).getFullYear(),
-        category: 'Movie',
-        rating: 'PG',
-        isTrending: movie.popularity > 1000,
-        isBookmarked: false,
+      // Fetch genre lists to map IDs to names
+      const [movieGenres, tvGenres] = await Promise.all([
+        tmdbApi.get('/genre/movie/list'),
+        tmdbApi.get('/genre/tv/list')
+      ]);
+
+      const movieGenreMap = movieGenres.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+
+      const tvGenreMap = tvGenres.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+
+      const moviesReceived = await Promise.all(moviesResponse.data.results.map(async movie => {
+        // Fetch videos for the movie
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/movie/${movie.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for movie ${movie.id}:`, error);
+        }
+
+        return {
+          id: movie.id,
+          title: movie.title || movie.name,
+          name: movie.title || movie.name,
+          thumbnail: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          backdrop_path: movie.backdrop_path,
+          year: new Date(movie.release_date || movie.first_air_date).getFullYear(),
+          category: 'Movie',
+          media_type: 'movie',
+          rating: 'PG',
+          vote_average: movie.vote_average || 0,
+          isTrending: movie.popularity > 1000,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: movie.overview,
+          genres: movie.genre_ids.map(id => movieGenreMap[id] || 'Unknown'),
+          video_key: videoKey,
+        };
       }));
 
-      const tvReceived = tvResponse.data.results.map(series => ({
-        id: series.id,
-        title: series.name || series.title,
-        thumbnail: `https://image.tmdb.org/t/p/w500${series.poster_path}`,
-        year: new Date(series.first_air_date || series.release_date).getFullYear(),
-        category: 'TV Series',
-        rating: 'PG',
-        isTrending: series.popularity > 1000,
-        isBookmarked: false,
+      const tvReceived = await Promise.all(tvResponse.data.results.map(async series => {
+        // Fetch videos for the TV series
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/tv/${series.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for TV series ${series.id}:`, error);
+        }
+
+        return {
+          id: series.id,
+          title: series.name || series.title,
+          name: series.name || series.title,
+          thumbnail: `https://image.tmdb.org/t/p/w500${series.poster_path}`,
+          backdrop_path: series.backdrop_path,
+          year: new Date(series.first_air_date || series.release_date).getFullYear(),
+          category: 'TV Series',
+          media_type: 'tv',
+          rating: 'PG',
+          vote_average: series.vote_average || 0,
+          isTrending: series.popularity > 1000,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: series.overview,
+          genres: series.genre_ids.map(id => tvGenreMap[id] || 'Unknown'),
+          video_key: videoKey,
+        };
       }));
 
       const result = [...moviesReceived, ...tvReceived];
@@ -109,15 +174,43 @@ const tmdbService = {
       console.log('Fetching movies...');
       const response = await tmdbApi.get('/discover/movie?include_adult=false&language=en-US&page=1&sort_by=popularity.desc');
       
-      const result = response.data.results.map(movie => ({
-        id: movie.id,
-        title: movie.title,
-        thumbnail: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-        year: new Date(movie.release_date).getFullYear(),
-        category: 'Movie',
-        rating: 'PG',
-        isTrending: movie.popularity > 1000,
-        isBookmarked: false,
+      // Fetch movie genres
+      const genresResponse = await tmdbApi.get('/genre/movie/list');
+      const genreMap = genresResponse.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+      
+      const result = await Promise.all(response.data.results.map(async movie => {
+        // Fetch videos for the movie
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/movie/${movie.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for movie ${movie.id}:`, error);
+        }
+        
+        return {
+          id: movie.id,
+          title: movie.title,
+          name: movie.title,
+          thumbnail: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          backdrop_path: movie.backdrop_path,
+          year: new Date(movie.release_date).getFullYear(),
+          category: 'Movie',
+          media_type: 'movie',
+          rating: 'PG',
+          vote_average: movie.vote_average || 0,
+          isTrending: movie.popularity > 1000,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: movie.overview,
+          genres: movie.genre_ids.map(id => genreMap[id] || 'Unknown'),
+          video_key: videoKey,
+        };
       }));
       
       console.log(`Successfully fetched ${result.length} movies`);
@@ -133,15 +226,43 @@ const tmdbService = {
     try {
       const response = await tmdbApi.get('/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc');
       
-      return response.data.results.map(series => ({
-        id: series.id,
-        title: series.name,
-        thumbnail: `https://image.tmdb.org/t/p/w500${series.poster_path}`,
-        year: new Date(series.first_air_date).getFullYear(),
-        category: 'TV Series',
-        rating: 'PG',
-        isTrending: series.popularity > 1000,
-        isBookmarked: false,
+      // Fetch TV genres
+      const genresResponse = await tmdbApi.get('/genre/tv/list');
+      const genreMap = genresResponse.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+      
+      return await Promise.all(response.data.results.map(async series => {
+        // Fetch videos for the TV series
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/tv/${series.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for TV series ${series.id}:`, error);
+        }
+        
+        return {
+          id: series.id,
+          title: series.name,
+          name: series.name,
+          thumbnail: `https://image.tmdb.org/t/p/w500${series.poster_path}`,
+          backdrop_path: series.backdrop_path,
+          year: new Date(series.first_air_date).getFullYear(),
+          category: 'TV Series',
+          media_type: 'tv',
+          rating: 'PG',
+          vote_average: series.vote_average || 0,
+          isTrending: series.popularity > 1000,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: series.overview,
+          genres: series.genre_ids.map(id => genreMap[id] || 'Unknown'),
+          video_key: videoKey,
+        };
       }));
     } catch (error) {
       console.error('Error fetching TV series:', error);
@@ -155,15 +276,55 @@ const tmdbService = {
       console.log('Fetching trending shows...');
       const response = await tmdbApi.get('/trending/all/day');
       
-      const result = response.data.results.map(item => ({
-        id: item.id,
-        title: item.title || item.name,
-        thumbnail: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
-        year: new Date(item.release_date || item.first_air_date).getFullYear(),
-        category: item.media_type === 'movie' ? 'Movie' : 'TV Series',
-        rating: 'PG',
-        isTrending: true,
-        isBookmarked: false,
+      // Fetch both movie and TV genres
+      const [movieGenres, tvGenres] = await Promise.all([
+        tmdbApi.get('/genre/movie/list'),
+        tmdbApi.get('/genre/tv/list')
+      ]);
+      
+      const movieGenreMap = movieGenres.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+      
+      const tvGenreMap = tvGenres.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+      
+      const result = await Promise.all(response.data.results.map(async item => {
+        // Fetch videos based on media type
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/${item.media_type}/${item.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for ${item.media_type} ${item.id}:`, error);
+        }
+        
+        // Use appropriate genre map based on media type
+        const genreMap = item.media_type === 'movie' ? movieGenreMap : tvGenreMap;
+        
+        return {
+          id: item.id,
+          title: item.title || item.name,
+          name: item.title || item.name,
+          thumbnail: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
+          backdrop_path: item.backdrop_path,
+          year: new Date(item.release_date || item.first_air_date).getFullYear(),
+          category: item.media_type === 'movie' ? 'Movie' : 'TV Series',
+          media_type: item.media_type || 'movie',
+          rating: 'PG',
+          vote_average: item.vote_average || 0,
+          isTrending: true,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: item.overview,
+          genres: item.genre_ids.map(id => genreMap[id] || 'Unknown'),
+          video_key: videoKey,
+        };
       }));
       
       console.log(`Successfully fetched ${result.length} trending shows`);
@@ -183,26 +344,84 @@ const tmdbService = {
         tmdbApi.get(`/search/tv?query=${query}&include_adult=false&language=en-US&page=1`)
       ]);
       
-      const movies = movieResults.data.results.map(movie => ({
-        id: movie.id,
-        title: movie.title,
-        thumbnail: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-        year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
-        category: 'Movie',
-        rating: 'PG',
-        isTrending: movie.popularity > 1000,
-        isBookmarked: false,
+      // Fetch both movie and TV genres
+      const [movieGenres, tvGenres] = await Promise.all([
+        tmdbApi.get('/genre/movie/list'),
+        tmdbApi.get('/genre/tv/list')
+      ]);
+      
+      const movieGenreMap = movieGenres.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+      
+      const tvGenreMap = tvGenres.data.genres.reduce((map, genre) => {
+        map[genre.id] = genre.name;
+        return map;
+      }, {});
+      
+      const movies = await Promise.all(movieResults.data.results.map(async movie => {
+        // Fetch videos for the movie
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/movie/${movie.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for movie ${movie.id}:`, error);
+        }
+        
+        return {
+          id: movie.id,
+          title: movie.title,
+          name: movie.title,
+          thumbnail: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+          backdrop_path: movie.backdrop_path,
+          year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+          category: 'Movie',
+          media_type: 'movie',
+          rating: 'PG',
+          vote_average: movie.vote_average || 0,
+          isTrending: movie.popularity > 1000,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: movie.overview,
+          genres: movie.genre_ids ? movie.genre_ids.map(id => movieGenreMap[id] || 'Unknown') : [],
+          video_key: videoKey,
+        };
       }));
       
-      const tvShows = tvResults.data.results.map(series => ({
-        id: series.id,
-        title: series.name,
-        thumbnail: `https://image.tmdb.org/t/p/w500${series.poster_path}`,
-        year: series.first_air_date ? new Date(series.first_air_date).getFullYear() : 0,
-        category: 'TV Series',
-        rating: 'PG',
-        isTrending: series.popularity > 1000,
-        isBookmarked: false,
+      const tvShows = await Promise.all(tvResults.data.results.map(async series => {
+        // Fetch videos for the TV series
+        let videoKey = null;
+        try {
+          const videosResponse = await tmdbApi.get(`/tv/${series.id}/videos`);
+          const trailer = videosResponse.data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+          videoKey = trailer ? trailer.key : null;
+        } catch (error) {
+          console.error(`Error fetching videos for TV series ${series.id}:`, error);
+        }
+        
+        return {
+          id: series.id,
+          title: series.name,
+          name: series.name,
+          thumbnail: `https://image.tmdb.org/t/p/w500${series.poster_path}`,
+          backdrop_path: series.backdrop_path,
+          year: new Date(series.first_air_date).getFullYear(),
+          category: 'TV Series',
+          media_type: 'tv',
+          rating: 'PG',
+          vote_average: series.vote_average || 0,
+          isTrending: series.popularity > 1000,
+          isBookmarked: false,
+          isWatched: false,
+          isFavorite: false,
+          overview: series.overview,
+          genres: series.genre_ids ? series.genre_ids.map(id => tvGenreMap[id] || 'Unknown') : [],
+          video_key: videoKey,
+        };
       }));
       
       const combinedResults = [...movies, ...tvShows];
