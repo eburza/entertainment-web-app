@@ -12,8 +12,26 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 // Create the express app
 const app = express();
 
-// CORS
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: ['https://emilia-burza-entertainment-app.netlify.app', 'http://localhost:3000', 'http://localhost:5173'],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// Apply CORS middleware with options
+app.use(cors(corsOptions));
+
+// Add CORS headers to all responses as a fallback
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', 'https://emilia-burza-entertainment-app.netlify.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 // JSON parser
 app.use(express.json());
@@ -22,6 +40,11 @@ app.use(express.json());
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL || 'https://api.themoviedb.org/3';
 const TMDB_API_ACCESS_TOKEN = process.env.TMDB_API_ACCESS_TOKEN || '';
 const TMDB_API_KEY = process.env.TMDB_API_KEY || '';
+
+// Handle OPTIONS requests for CORS preflight
+app.options('*', function(req: Request, res: Response) {
+  res.status(204).end();
+});
 
 // Basic health check endpoint
 app.get('/', function(req: Request, res: Response) {
@@ -45,7 +68,7 @@ app.get('/', function(req: Request, res: Response) {
   res.status(200).json(response);
 });
 
-// Shows endpoint
+// Shows endpoint - both with and without /api prefix for compatibility
 app.get('/api/shows', function(req: Request, res: Response) {
   const fetchShows = async () => {
     try {
@@ -79,6 +102,159 @@ app.get('/api/shows', function(req: Request, res: Response) {
   };
 
   fetchShows();
+});
+
+app.get('/shows', function(req: Request, res: Response) {
+  const fetchShows = async () => {
+    try {
+      const tmdbApi = axios.create({
+        baseURL: TMDB_BASE_URL,
+        headers: {
+          Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      // Fetch movies
+      const moviesResponse = await tmdbApi.get('/trending/movie/day', {
+        params: { api_key: TMDB_API_KEY }
+      });
+      
+      // Fetch TV shows
+      const tvResponse = await tmdbApi.get('/trending/tv/day', {
+        params: { api_key: TMDB_API_KEY }
+      });
+      
+      const shows = [...moviesResponse.data.results, ...tvResponse.data.results];
+      
+      const response = createApiResponse(true, { shows }, 'Shows fetched successfully', undefined, 200);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error fetching shows:', error);
+      const response = createApiResponse(false, undefined, 'Error fetching shows', 'Internal server error', 500);
+      res.status(500).json(response);
+    }
+  };
+
+  fetchShows();
+});
+
+// Movies endpoint - both with and without /api prefix
+app.get('/api/movies', function(req: Request, res: Response) {
+  const fetchMovies = async () => {
+    try {
+      const tmdbApi = axios.create({
+        baseURL: TMDB_BASE_URL,
+        headers: {
+          Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const moviesResponse = await tmdbApi.get('/trending/movie/day', {
+        params: { api_key: TMDB_API_KEY }
+      });
+      
+      const movies = moviesResponse.data.results;
+      
+      const response = createApiResponse(true, { movies }, 'Movies fetched successfully', undefined, 200);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+      const response = createApiResponse(false, undefined, 'Error fetching movies', 'Internal server error', 500);
+      res.status(500).json(response);
+    }
+  };
+
+  fetchMovies();
+});
+
+app.get('/movies', function(req: Request, res: Response) {
+  const fetchMovies = async () => {
+    try {
+      const tmdbApi = axios.create({
+        baseURL: TMDB_BASE_URL,
+        headers: {
+          Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const moviesResponse = await tmdbApi.get('/trending/movie/day', {
+        params: { api_key: TMDB_API_KEY }
+      });
+      
+      const movies = moviesResponse.data.results;
+      
+      const response = createApiResponse(true, { movies }, 'Movies fetched successfully', undefined, 200);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+      const response = createApiResponse(false, undefined, 'Error fetching movies', 'Internal server error', 500);
+      res.status(500).json(response);
+    }
+  };
+
+  fetchMovies();
+});
+
+// TV endpoint - both with and without /api prefix
+app.get('/api/tv', function(req: Request, res: Response) {
+  const fetchTv = async () => {
+    try {
+      const tmdbApi = axios.create({
+        baseURL: TMDB_BASE_URL,
+        headers: {
+          Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const tvResponse = await tmdbApi.get('/trending/tv/day', {
+        params: { api_key: TMDB_API_KEY }
+      });
+      
+      const tvSeries = tvResponse.data.results;
+      
+      const response = createApiResponse(true, { tvSeries }, 'TV series fetched successfully', undefined, 200);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error fetching TV series:', error);
+      const response = createApiResponse(false, undefined, 'Error fetching TV series', 'Internal server error', 500);
+      res.status(500).json(response);
+    }
+  };
+
+  fetchTv();
+});
+
+app.get('/tv', function(req: Request, res: Response) {
+  const fetchTv = async () => {
+    try {
+      const tmdbApi = axios.create({
+        baseURL: TMDB_BASE_URL,
+        headers: {
+          Authorization: `Bearer ${TMDB_API_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const tvResponse = await tmdbApi.get('/trending/tv/day', {
+        params: { api_key: TMDB_API_KEY }
+      });
+      
+      const tvSeries = tvResponse.data.results;
+      
+      const response = createApiResponse(true, { tvSeries }, 'TV series fetched successfully', undefined, 200);
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error fetching TV series:', error);
+      const response = createApiResponse(false, undefined, 'Error fetching TV series', 'Internal server error', 500);
+      res.status(500).json(response);
+    }
+  };
+
+  fetchTv();
 });
 
 // Search endpoint
