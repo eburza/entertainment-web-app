@@ -2,7 +2,9 @@ import axios from 'axios';
 
 //axios config
 const axiosConfig = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
+  // Use the correct API URL
+  baseURL:
+    process.env.REACT_APP_API_URL || 'https://emilia-burza-entertainment-app-server.netlify.app',
   headers: {
     'Content-Type': 'application/json',
   },

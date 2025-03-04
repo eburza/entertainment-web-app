@@ -1,7 +1,14 @@
 [build]
-  base = "client"
+  command = "npm run build"
   publish = "build"
-  command = "CI= npm run build"
+  functions = "netlify/functions"
+
+[dev]
+  command = "npm run start"
+  port = 3000
+  targetPort = 3000
+  publish = "build"
+  autoLaunch = true
 
 [[headers]]
   for = "/*"
@@ -15,12 +22,17 @@
 
 # SPA configuration - always return index.html for all routes
 [[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
 [context.production.environment]
-  REACT_APP_API_URL = "https://entertainment-web-app-api.netlify.app"
+  REACT_APP_API_URL = "https://emilia-burza-entertainment-app-server.netlify.app"
   REACT_APP_USE_FALLBACK = "true"
 
 [context.development.environment]

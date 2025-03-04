@@ -1,0 +1,2 @@
+/api/*  https://emilia-burza-entertainment-app-server.netlify.app/:splat  200
+/*      /index.html     200 
