@@ -3,6 +3,11 @@
   publish = "dist"
   command = "npm install && npm run build"
 
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  TZ = "UTC"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
@@ -34,8 +39,12 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
+# Production context
 [context.production.environment]
+  TMDB_BASE_URL = "https://api.themoviedb.org/3"
   NODE_ENV = "production"
+  # Netlify will inject TMDB_API_KEY and TMDB_API_ACCESS_TOKEN from the Netlify UI
 
-[context.development.environment]
+# Development context
+[context.dev.environment]
   NODE_ENV = "development" 
