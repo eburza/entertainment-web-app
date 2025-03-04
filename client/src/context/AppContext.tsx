@@ -1,12 +1,23 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { IAppContext, IBookmarkContext, IUser, IShow } from '../types/interface';
-import { getAllTrending, getAllShows } from '../services/tmdb';
+import {
+  getAllTrending,
+  getAllShows,
+  getMovies,
+  getTvSeries,
+  getMovieDetails,
+  getTvSeriesDetails,
+} from '../services/tmdb';
 import { useParams } from 'react-router-dom';
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [shows, setShows] = useState<IShow[]>([]);
+  const [movies, setMovies] = useState<IShow[]>([]);
+  const [tvSeries, setTvSeries] = useState<IShow[]>([]);
+  const [movieDetails, setMovieDetails] = useState<IShow | null>(null);
+  const [tvSeriesDetails, setTvSeriesDetails] = useState<IShow | null>(null);
   const [bookmarks, setBookmarks] = useState<IBookmarkContext | null>(null);
   const [trending, setTrending] = useState<IShow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -62,6 +73,88 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     getTrending();
   }, []);
+
+  useEffect(() => {
+    async function fetchMovies() {
+      try {
+        const data = await getMovies();
+        setMovies(data as IShow[]);
+      } catch (error) {
+        console.error('Error in AppContext getMovies:', error);
+        setIsError(true);
+        setErrorMessage('Error fetching movies');
+        setMovies([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchMovies();
+  }, []);
+
+  useEffect(() => {
+    async function fetchTvSeries() {
+      try {
+        const data = await getTvSeries();
+        setTvSeries(data as IShow[]);
+      } catch (error) {
+        console.error('Error in AppContext getTvSeries:', error);
+        setIsError(true);
+        setErrorMessage('Error fetching tv series');
+        setTvSeries([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTvSeries();
+  }, []);
+
+  useEffect(() => {
+    async function fetchMovieDetails(paramId: string | number): Promise<IShow | null> {
+      if (!paramId) return null; // Skip if no ID is provided
+
+      try {
+        const data = await getMovieDetails(paramId as string);
+        setMovieDetails(data as unknown as IShow);
+        return data as unknown as IShow;
+      } catch (error) {
+        console.error('Error in AppContext getMovieDetails:', error);
+        setIsError(true);
+        setErrorMessage('Error fetching movie details');
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (params.id) {
+      fetchMovieDetails(params.id);
+    }
+  }, [params.id]);
+
+  useEffect(() => {
+    async function fetchTvSeriesDetails(paramId: string | number): Promise<IShow | null> {
+      if (!paramId) return null; // Skip if no ID is provided
+
+      try {
+        const data = await getTvSeriesDetails(paramId as string);
+        setTvSeriesDetails(data as unknown as IShow);
+        return data as unknown as IShow;
+      } catch (error) {
+        console.error('Error in AppContext getTvSeriesDetails:', error);
+        setIsError(true);
+        setErrorMessage('Error fetching tv series details');
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (params.id) {
+      fetchTvSeriesDetails(params.id);
+    }
+  }, [params.id]);
 
   useEffect(() => {
     async function getBookmarks() {
@@ -148,6 +241,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   //   }
   // }, [isAuthenticated]);
 
+  // load show
   useEffect(() => {
     async function loadShow() {
       if (!params.id) return; // Skip if no ID is provided
@@ -189,6 +283,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setUser,
         shows,
         setShows,
+        movies,
+        setMovies,
+        tvSeries,
+        setTvSeries,
+        movieDetails,
+        setMovieDetails,
+        tvSeriesDetails,
+        setTvSeriesDetails,
         bookmarks,
         setBookmarks,
         isLoading,

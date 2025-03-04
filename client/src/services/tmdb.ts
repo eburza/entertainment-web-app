@@ -175,15 +175,3 @@ export async function searchByKeyword(query: string) {
     throw error;
   }
 }
-
-// export const getMovie = async (id: string) => {
-//   const response = await fetch(`${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}`);
-//   const data = await response.json();
-//   return data;
-// };
-
-// export const getTv = async (id: string) => {
-//   const response = await fetch(`${TMDB_BASE_URL}/tv/${id}?api_key=${TMDB_API_KEY}`);
-//   const data = await response.json();
-//   return data;
-// };

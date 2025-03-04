@@ -73,6 +73,14 @@ export interface IAppContext {
   setUser: (user: IUser | null) => void;
   shows: IShow[] | null;
   setShows: React.Dispatch<React.SetStateAction<IShow[]>>;
+  movies: IShow[] | null;
+  setMovies: React.Dispatch<React.SetStateAction<IShow[]>>;
+  tvSeries: IShow[] | null;
+  setTvSeries: React.Dispatch<React.SetStateAction<IShow[]>>;
+  movieDetails: IShow | null;
+  setMovieDetails: React.Dispatch<React.SetStateAction<IShow | null>>;
+  tvSeriesDetails: IShow | null;
+  setTvSeriesDetails: React.Dispatch<React.SetStateAction<IShow | null>>;
   bookmarks: IBookmarkContext | null;
   setBookmarks: (bookmarks: IBookmarkContext | null) => void;
   trending: IShow[];
