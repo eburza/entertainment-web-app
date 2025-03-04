@@ -1,12 +1,14 @@
-//import MediaCard from '../components/shared/MediaCard';
+import MediaSection from '../components/shared/MediaSection';
+import { useAppContext } from '../context/AppContext';
+import { IAppContext, IShow } from '../types/interface';
 
 export default function TVSeries() {
+  const { tvSeries } = useAppContext() as IAppContext;
+
   return (
     <section>
-      <h2 className="text-3xl font-semibold mb-8">TV Series</h2>
-      <div className="grid grid-cols-auto-fill gap-4 md:gap-6">
-        <p>No TV series</p>
-      </div>
+      <h2 className="text-3xl font-bold mb-8">TV Series</h2>
+      <MediaSection items={tvSeries as IShow[]} />
     </section>
   );
 }
