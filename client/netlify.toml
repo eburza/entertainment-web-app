@@ -12,3 +12,6 @@
   for = "/*"
     [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+[context.production.environment]
+  REACT_APP_API_URL = "https://entertainment-web-app-api.netlify.app"
