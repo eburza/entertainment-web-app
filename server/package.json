@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "tsc",
+    "build": "tsc && npm run copy-files",
+    "copy-files": "mkdir -p dist/functions && cp -r dist/src/* dist/functions/ && mkdir -p dist/functions/functions && cp -r dist/functions/functions/* dist/functions/ || true",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
@@ -35,6 +36,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",
     "morgan": "^1.10.0",
+    "serverless-http": "^3.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "winston": "^3.17.0",

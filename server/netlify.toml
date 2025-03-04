@@ -1,0 +1,15 @@
+[build]
+  base = "server"
+  publish = "dist"
+  command = "npm install && npm run build"
+
+[functions]
+  directory = "dist/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api"
+  status = 200
+
+[dev]
+  port = 3001 
