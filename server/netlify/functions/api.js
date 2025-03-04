@@ -215,147 +215,6 @@ const tmdbService = {
   }
 };
 
-// Import routes or create basic routes
-let showsRouter, bookmarkedRouter, tvRouter, moviesRouter, searchRouter;
-
-try {
-  // Try to import routes from the build directory
-  showsRouter = require('../../dist/routes/shows').default;
-  bookmarkedRouter = require('../../dist/routes/bookmarked').default;
-  tvRouter = require('../../dist/routes/tv').default;
-  moviesRouter = require('../../dist/routes/movies').default;
-  searchRouter = require('../../dist/routes/search').default;
-  console.log('Successfully imported routes from build directory');
-} catch (error) {
-  console.error('Error importing routes:', error);
-  // Create basic routes that use the TMDB service directly
-  console.log('Creating basic routes with TMDB service');
-  
-  // Shows router
-  showsRouter = express.Router();
-  showsRouter.get('/', async (req, res) => {
-    try {
-      if (req.query.trending === 'true') {
-        const trendingShows = await tmdbService.getAllTrending();
-        return res.json({ 
-          status: true, 
-          data: { 
-            trending: trendingShows
-          } 
-        });
-      }
-      
-      const shows = await tmdbService.getAllShows();
-      return res.json({ 
-        status: true, 
-        data: { 
-          shows: shows
-        } 
-      });
-    } catch (error) {
-      console.error('Error in shows route:', error);
-      return res.status(500).json({ 
-        status: false, 
-        error: { 
-          message: 'Failed to fetch shows', 
-          status: 500 
-        } 
-      });
-    }
-  });
-  
-  // Movies router
-  moviesRouter = express.Router();
-  moviesRouter.get('/', async (req, res) => {
-    try {
-      const movies = await tmdbService.getMovies();
-      res.json({ 
-        status: true, 
-        data: { 
-          shows: movies
-        } 
-      });
-    } catch (error) {
-      console.error('Error in movies route:', error);
-      res.status(500).json({ 
-        status: false, 
-        error: { 
-          message: 'Failed to fetch movies', 
-          status: 500 
-        } 
-      });
-    }
-  });
-  
-  // TV router
-  tvRouter = express.Router();
-  tvRouter.get('/', async (req, res) => {
-    try {
-      const tvSeries = await tmdbService.getTvSeries();
-      res.json({ 
-        status: true, 
-        data: { 
-          shows: tvSeries
-        } 
-      });
-    } catch (error) {
-      console.error('Error in TV route:', error);
-      res.status(500).json({ 
-        status: false, 
-        error: { 
-          message: 'Failed to fetch TV series', 
-          status: 500 
-        } 
-      });
-    }
-  });
-  
-  // Search router
-  searchRouter = express.Router();
-  searchRouter.get('/', async (req, res) => {
-    try {
-      const { query } = req.query;
-      if (!query) {
-        return res.status(400).json({ 
-          status: false, 
-          error: { 
-            message: 'Query parameter is required', 
-            status: 400 
-          } 
-        });
-      }
-      
-      const searchResults = await tmdbService.searchByKeyword(query);
-      res.json({ 
-        status: true, 
-        data: { 
-          shows: searchResults
-        } 
-      });
-    } catch (error) {
-      console.error('Error in search route:', error);
-      res.status(500).json({ 
-        status: false, 
-        error: { 
-          message: 'Failed to search shows', 
-          status: 500 
-        } 
-      });
-    }
-  });
-  
-  // Bookmarked router (placeholder)
-  bookmarkedRouter = express.Router();
-  bookmarkedRouter.get('/', (req, res) => {
-    res.json({ 
-      status: true, 
-      data: { 
-        shows: []
-      } 
-    });
-  });
-}
-
 // Create Express app
 const app = express();
 
@@ -375,28 +234,143 @@ app.use(express.json());
 app.use((req, res, next) => {
   console.log(`[DEBUG] Received request: ${req.method} ${req.url}`);
   console.log(`[DEBUG] Request query:`, req.query);
+  console.log(`[DEBUG] Request path:`, req.path);
+  console.log(`[DEBUG] Request originalUrl:`, req.originalUrl);
   next();
 });
 
-// Base routes - Netlify functions receive requests at /.netlify/functions/api
-// but our front-end might be calling different paths
-const router = express.Router();
-
-// Main routes
-router.use('/', showsRouter);
-router.use('/bookmarked', bookmarkedRouter);
-router.use('/tv', tvRouter);
-router.use('/movies', moviesRouter);
-router.use('/search', searchRouter);
-
-// Health check route
-router.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'API is running' });
+// Add a simple test route to verify the API is working
+app.get('/test', (req, res) => {
+  res.json({ message: 'API is working' });
 });
 
-// Mount the router on multiple paths to handle different client configurations
-app.use('/', router);                        // Direct root access
-app.use('/.netlify/functions/api', router);  // Netlify function path
+// Mount routers directly on the app for simplicity rather than using a nested router
+// This avoids potential path matching issues
+app.get('/', async (req, res) => {
+  try {
+    if (req.query.trending === 'true') {
+      const trendingShows = await tmdbService.getAllTrending();
+      return res.json({ 
+        status: true, 
+        data: { 
+          trending: trendingShows
+        } 
+      });
+    }
+    
+    const shows = await tmdbService.getAllShows();
+    return res.json({ 
+      status: true, 
+      data: { 
+        shows: shows
+      } 
+    });
+  } catch (error) {
+    console.error('Error in shows route:', error);
+    return res.status(500).json({ 
+      status: false, 
+      error: { 
+        message: 'Failed to fetch shows', 
+        status: 500 
+      } 
+    });
+  }
+});
+
+app.get('/movies', async (req, res) => {
+  console.log('[DEBUG] Movies endpoint hit');
+  try {
+    const movies = await tmdbService.getMovies();
+    console.log(`[DEBUG] Movies fetched successfully: ${movies.length} items`);
+    return res.json({ 
+      status: true, 
+      data: { 
+        shows: movies
+      } 
+    });
+  } catch (error) {
+    console.error('Error in movies route:', error);
+    return res.status(500).json({ 
+      status: false, 
+      error: { 
+        message: 'Failed to fetch movies', 
+        status: 500 
+      } 
+    });
+  }
+});
+
+app.get('/tv', async (req, res) => {
+  console.log('[DEBUG] TV endpoint hit');
+  try {
+    const tvSeries = await tmdbService.getTvSeries();
+    console.log(`[DEBUG] TV series fetched successfully: ${tvSeries.length} items`);
+    return res.json({ 
+      status: true, 
+      data: { 
+        shows: tvSeries
+      } 
+    });
+  } catch (error) {
+    console.error('Error in TV route:', error);
+    return res.status(500).json({ 
+      status: false, 
+      error: { 
+        message: 'Failed to fetch TV series', 
+        status: 500 
+      } 
+    });
+  }
+});
+
+app.get('/search', async (req, res) => {
+  console.log('[DEBUG] Search endpoint hit with query:', req.query.query);
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ 
+        status: false, 
+        error: { 
+          message: 'Query parameter is required', 
+          status: 400 
+        } 
+      });
+    }
+    
+    const searchResults = await tmdbService.searchByKeyword(query);
+    console.log(`[DEBUG] Search results: ${searchResults.length} items found`);
+    return res.json({ 
+      status: true, 
+      data: { 
+        shows: searchResults
+      } 
+    });
+  } catch (error) {
+    console.error('Error in search route:', error);
+    return res.status(500).json({ 
+      status: false, 
+      error: { 
+        message: 'Failed to search shows', 
+        status: 500 
+      } 
+    });
+  }
+});
+
+app.get('/bookmarked', (req, res) => {
+  console.log('[DEBUG] Bookmarked endpoint hit');
+  return res.json({ 
+    status: true, 
+    data: { 
+      shows: []
+    } 
+  });
+});
+
+// Add a health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'API is running' });
+});
 
 // Add a catch-all route for debugging
 app.use('*', (req, res) => {
@@ -409,6 +383,18 @@ app.use('*', (req, res) => {
     }
   });
 });
+
+// Remove the router configuration since we're mounting routes directly on the app
+// This removes one layer of complexity in the routing
+// router.use('/', showsRouter);
+// router.use('/bookmarked', bookmarkedRouter);
+// router.use('/tv', tvRouter);
+// router.use('/movies', moviesRouter);
+// router.use('/search', searchRouter);
+
+// // Mount the router on multiple paths to handle different client configurations
+// app.use('/', router);                        // Direct root access
+// app.use('/.netlify/functions/api', router);  // Netlify function path
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -427,7 +413,7 @@ const handler = serverless(app);
 
 // Export the handler function
 exports.handler = async (event, context) => {
-  // Log the request for debugging
+  // Log the original request for debugging
   console.log(`API request received: ${event.httpMethod} ${event.path}`);
   console.log('Request headers:', JSON.stringify(event.headers));
   console.log('Request queryStringParameters:', JSON.stringify(event.queryStringParameters));
@@ -442,6 +428,29 @@ exports.handler = async (event, context) => {
     console.log(`Modified path from ${originalPath} to ${event.path}`);
   }
   
+  // Special handling for empty paths - route to root
+  if (event.path === '') {
+    event.path = '/';
+    console.log(`Empty path detected, routing to /`);
+  }
+  
+  // Log the final normalized path
+  console.log(`Final normalized path: ${event.path}`);
+  
   // Wait for the response
-  return await handler(event, context);
+  try {
+    return await handler(event, context);
+  } catch (error) {
+    console.error('Error in handler:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        status: false,
+        error: {
+          message: 'Server error processing request',
+          status: 500
+        }
+      })
+    };
+  }
 }; 
