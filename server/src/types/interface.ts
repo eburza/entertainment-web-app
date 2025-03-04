@@ -1,18 +1,24 @@
 export interface IShow {
-  _id: string;
+  name: string;
+  id: string;
   title: string;
-  thumbnail: string;
+  backdrop_path: string;
   year: number;
-  category: 'Movie' | 'TV Series';
-  rating: string;
+  media_type: 'movie' | 'tv';
+  vote_average: number;
   isTrending: boolean;
   isBookmarked: boolean;
+  isWatched?: boolean;
+  isFavorite?: boolean;
 }
 
 export interface IUser {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   password: string;
-  isBookmarked: IShow[];
+  isAdmin: boolean;
+  isGuest: boolean;
+  isUser: boolean;
+  isAuthenticated: boolean;
 }
