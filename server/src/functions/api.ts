@@ -14,30 +14,18 @@ const app = express();
 
 // Configure CORS
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://entertainment-web-app-lilac.vercel.app', 'https://entertainment-web-app-topaz.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: ['http://localhost:3000', 'https://entertainment-web-app-lilac.vercel.app', 'https://entertainment-web-app-topaz.vercel.app', 'https://emilia-burza-entertainment-app.netlify.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept'],
+  credentials: true,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
 
-// Debug and CORS middleware - apply to ALL requests
+// Logging middleware - apply to ALL requests
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[DEBUG] Handling ${req.method} request to ${req.url} from origin: ${req.headers.origin || 'unknown'}`);
-  
-  // Set CORS headers explicitly on every response
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests immediately
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
-  
   next();
 });
 
@@ -58,61 +46,36 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Basic health check endpoint that also serves as shows/trending endpoint
+// Root endpoint - sends all shows by default, or trending if trending=true query param is present
 app.get('/', function(req: Request, res: Response) {
   const handleRequest = async () => {
     try {
-      // Check if this is a health check request (e.g., from Netlify)
-      const isHealthCheck = req.query.health === 'check' || req.headers['user-agent']?.includes('Netlify');
+      // Check if the trending query parameter is present
+      const trending = req.query.trending === 'true';
       
-      if (isHealthCheck) {
-        const response = createApiResponse(
-          true, 
-          {
-            status: 'ok',
-            message: 'API is running',
-            env: {
-              TMDB_BASE_URL: process.env.TMDB_BASE_URL ? 'Set' : 'Not set',
-              TMDB_API_KEY: process.env.TMDB_API_KEY ? 'Set' : 'Not set',
-              TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN ? 'Set' : 'Not set',
-              NODE_ENV: process.env.NODE_ENV || 'Not set'
-            }
-          },
-          'API is running',
-          undefined,
-          200
-        );
-        
-        return res.status(200).json(response);
-      }
-      
-      // Check if this is a request for trending content
-      const isTrending = req.query.trending === 'true' || req.headers['x-request-trending'] === 'true';
-      
-      if (isTrending) {
-        const trending = await tmdbService.getAllTrending();
-        // Structure response for client compatibility
+      if (trending) {
+        console.log('Fetching trending shows...');
+        const trendingShows = await tmdbService.getAllTrending();
         const response = {
           status: true,
-          data: { trending }
+          data: { trending: trendingShows }  // Keep as 'trending' for client compatibility
         };
-        return res.status(200).json(response);
+        res.status(200).json(response);
+      } else {
+        console.log('Fetching all shows...');
+        const allShows = await tmdbService.getAllShows();
+        const response = {
+          status: true,
+          data: { shows: allShows }
+        };
+        res.status(200).json(response);
       }
-      
-      // Otherwise, treat it as a request for shows
-      const shows = await tmdbService.getAllShows();
-      // Structure response for client compatibility
-      const response = {
-        status: true,
-        data: { shows }
-      };
-      res.status(200).json(response);
     } catch (error) {
       console.error('Error in root endpoint:', error);
       const response = {
         status: false,
         error: 'Internal server error',
-        message: 'Error processing request'
+        message: 'Error fetching shows'
       };
       res.status(500).json(response);
     }
