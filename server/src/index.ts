@@ -5,6 +5,7 @@ import errorHandler from './middleware/error';
 import logging from './config/logger';
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 dotenv.config({ path: '.env' });
 
 //connect to the database
@@ -15,6 +16,9 @@ logging();
 
 //create the express app
 const app = express();
+
+//cors
+app.use(cors());
 
 //middleware
 app.use(express.json());
