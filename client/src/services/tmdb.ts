@@ -44,6 +44,102 @@ export async function getAllShows() {
   }
 }
 
+// get movies
+export async function getMovies() {
+  try {
+    const url = `${TMDB_BASE_URL}/discover/movie?include_adult=false&language=en-US&page=1&sort_by=popularity.desc`;
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      console.error('TMDB API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+
+    const data = (await response.json()) as TMDBResponse;
+    return data.results;
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+    throw error;
+  }
+}
+
+//get tv series
+export async function getTvSeries() {
+  try {
+    const url = `${TMDB_BASE_URL}/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc`;
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      console.error('TMDB API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+
+    const data = (await response.json()) as TMDBResponse;
+    return data.results;
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+    throw error;
+  }
+}
+
+//get movies details
+export async function getMovieDetails(movieId: string) {
+  try {
+    const url = `${TMDB_BASE_URL}//movie/${movieId}?api_key=${TMDB_API_KEY}`;
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      console.error('TMDB API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+
+    const data = (await response.json()) as TMDBResponse;
+    return data;
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
+    throw error;
+  }
+}
+
+//get tv series details
+export async function getTvSeriesDetails(tvId: string) {
+  try {
+    const url = `${TMDB_BASE_URL}/tv/${tvId}?api_key=${TMDB_API_KEY}`;
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      console.error('TMDB API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+
+    const data = (await response.json()) as TMDBResponse;
+    return data;
+  } catch (error) {
+    console.error('Error fetching tv series details:', error);
+    throw error;
+  }
+}
+
 // get all trending
 export async function getAllTrending() {
   try {
