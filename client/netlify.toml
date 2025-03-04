@@ -18,6 +18,10 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # Client doesn't need to send CORS headers but we'll keep the structure consistent
+    Access-Control-Allow-Origin = "https://emilia-burza-entertainment-app-server.netlify.app"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
 
 # SPA configuration - always return index.html for all routes
 [[redirects]]
@@ -33,7 +37,9 @@
 [context.production.environment]
   REACT_APP_API_URL = "https://emilia-burza-entertainment-app-server.netlify.app"
   REACT_APP_USE_FALLBACK = "true"
+  NODE_ENV = "production"
 
 [context.development.environment]
   REACT_APP_API_URL = "http://localhost:3001"
   REACT_APP_USE_FALLBACK = "true"
+  NODE_ENV = "development"

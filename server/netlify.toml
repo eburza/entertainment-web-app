@@ -3,10 +3,9 @@
   publish = "dist"
   command = "npm install && npm run build"
 
-[functions]
-  directory = "dist/functions"
-  node_bundler = "esbuild"
-  external_node_modules = ["express", "mongoose"]
+[dev]
+  port = 3001
+  autoLaunch = true
 
 # Global CORS headers for all routes
 [[headers]]
@@ -17,28 +16,21 @@
     Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     Access-Control-Allow-Credentials = "true"
     Access-Control-Max-Age = "86400"
+    Cache-Control = "public, max-age=0, must-revalidate"
+    # Add basic security headers
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Special handling for OPTIONS requests (CORS preflight)
+# Standard API routes
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 204
-  force = true
-  conditions = {method = "OPTIONS"}
-
-# Handle the API routes with proper path parameters
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "/index.html"
   status = 200
-  force = true
 
-# Redirect root path and other specific paths to the API function with proper paths
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-  force = true
+[context.production.environment]
+  NODE_ENV = "production"
 
-[dev]
-  port = 3001 
+[context.development.environment]
+  NODE_ENV = "development" 
