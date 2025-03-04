@@ -120,9 +120,27 @@ export const tmdbService = {
   // Search by keyword
   async searchByKeyword(query: string) {
     try {
-      const response = await tmdbApi.get(`/search/keyword?query=${query}&page=1`);
-      return response.data.results;
+      console.log(`Searching for "${query}"...`);
+      const [movieResults, tvResults] = await Promise.all([
+        tmdbApi.get(`/search/movie?query=${query}&include_adult=false&language=en-US&page=1`),
+        tmdbApi.get(`/search/tv?query=${query}&include_adult=false&language=en-US&page=1`)
+      ]);
+      
+      const movies = movieResults.data.results.map((movie: TMDBResponse) => ({
+        ...movie,
+        media_type: 'movie',
+      }));
+      
+      const tvShows = tvResults.data.results.map((series: TMDBResponse) => ({
+        ...series,
+        media_type: 'tv',
+      }));
+      
+      const combinedResults = [...movies, ...tvShows];
+      console.log(`Found ${combinedResults.length} results for "${query}"`);
+      return combinedResults;
     } catch (error) {
+      console.error('Error searching shows:', error);
       throw new Error('Failed to search shows');
     }
   }

@@ -8,61 +8,7 @@
   node_bundler = "esbuild"
   external_node_modules = ["express", "mongoose"]
 
-# Special handling for OPTIONS requests (CORS preflight)
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/api"
-  status = 204
-  force = true
-  conditions = {method = "OPTIONS"}
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-# Redirect all API requests to the API function
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-# Redirect root path requests to the API function
-[[redirects]]
-  from = "/"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-# Redirect specific paths to the API function
-[[redirects]]
-  from = "/movies"
-  to = "/.netlify/functions/api/movies"
-  status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-[[redirects]]
-  from = "/tv"
-  to = "/.netlify/functions/api/tv"
-  status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-[[redirects]]
-  from = "/search"
-  to = "/.netlify/functions/api/search"
-  status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-[[redirects]]
-  from = "/bookmarked"
-  to = "/.netlify/functions/api/bookmarked"
-  status = 200
-  force = true
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS", Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization", Access-Control-Allow-Credentials = "true"}
-
-# Add CORS headers to all responses as a fallback
+# Global CORS headers for all routes
 [[headers]]
   for = "/*"
     [headers.values]
@@ -70,6 +16,29 @@
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     Access-Control-Allow-Credentials = "true"
+    Access-Control-Max-Age = "86400"
+
+# Special handling for OPTIONS requests (CORS preflight)
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 204
+  force = true
+  conditions = {method = "OPTIONS"}
+
+# Handle the API routes with proper path parameters
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# Redirect root path and other specific paths to the API function with proper paths
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
 
 [dev]
   port = 3001 

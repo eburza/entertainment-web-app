@@ -12,26 +12,27 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 // Create the express app
 const app = express();
 
-// CORS configuration - enhanced for more permissive settings during development
-app.use(cors({
-  origin: '*',  // Allow all origins 
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept'],
-  credentials: true,
-  optionsSuccessStatus: 204,
-  preflightContinue: false
-}));
+// Configure CORS
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://entertainment-web-app-lilac.vercel.app', 'https://entertainment-web-app-topaz.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
 
-// Add CORS headers to all responses as a fallback
+app.use(cors(corsOptions));
+
+// Debug and CORS middleware - apply to ALL requests
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[DEBUG] Handling ${req.method} request to ${req.url} from origin: ${req.headers.origin || 'unknown'}`);
   
+  // Set CORS headers explicitly on every response
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
   
-  // Handle preflight requests
+  // Handle preflight requests immediately
   if (req.method === 'OPTIONS') {
     res.status(204).end();
     return;
@@ -90,17 +91,29 @@ app.get('/', function(req: Request, res: Response) {
       
       if (isTrending) {
         const trending = await tmdbService.getAllTrending();
-        const response = createApiResponse(true, { trending }, 'Trending shows fetched successfully', undefined, 200);
+        // Structure response for client compatibility
+        const response = {
+          status: true,
+          data: { trending }
+        };
         return res.status(200).json(response);
       }
       
       // Otherwise, treat it as a request for shows
       const shows = await tmdbService.getAllShows();
-      const response = createApiResponse(true, { shows }, 'Shows fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows }
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error in root endpoint:', error);
-      const response = createApiResponse(false, undefined, 'Error processing request', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error processing request'
+      };
       res.status(500).json(response);
     }
   };
@@ -130,11 +143,19 @@ app.get('/movies', function(req: Request, res: Response) {
   const handleRequest = async () => {
     try {
       const movies = await tmdbService.getMovies();
-      const response = createApiResponse(true, { movies }, 'Movies fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows: movies }  // Use 'shows' key for consistency with client
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error fetching movies:', error);
-      const response = createApiResponse(false, undefined, 'Error fetching movies', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error fetching movies'
+      };
       res.status(500).json(response);
     }
   };
@@ -147,11 +168,19 @@ app.get('/api/movies', function(req: Request, res: Response) {
   const handleRequest = async () => {
     try {
       const movies = await tmdbService.getMovies();
-      const response = createApiResponse(true, { movies }, 'Movies fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows: movies }  // Use 'shows' key for consistency with client
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error fetching movies:', error);
-      const response = createApiResponse(false, undefined, 'Error fetching movies', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error fetching movies'
+      };
       res.status(500).json(response);
     }
   };
@@ -164,11 +193,19 @@ app.get('/tv', function(req: Request, res: Response) {
   const handleRequest = async () => {
     try {
       const tvSeries = await tmdbService.getTvSeries();
-      const response = createApiResponse(true, { tvSeries }, 'TV series fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows: tvSeries }  // Use 'shows' key for consistency with client
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error fetching TV series:', error);
-      const response = createApiResponse(false, undefined, 'Error fetching TV series', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error fetching TV series'
+      };
       res.status(500).json(response);
     }
   };
@@ -181,11 +218,19 @@ app.get('/api/tv', function(req: Request, res: Response) {
   const handleRequest = async () => {
     try {
       const tvSeries = await tmdbService.getTvSeries();
-      const response = createApiResponse(true, { tvSeries }, 'TV series fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows: tvSeries }  // Use 'shows' key for consistency with client
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error fetching TV series:', error);
-      const response = createApiResponse(false, undefined, 'Error fetching TV series', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error fetching TV series'
+      };
       res.status(500).json(response);
     }
   };
@@ -200,16 +245,28 @@ app.get('/search', function(req: Request, res: Response) {
       const query = req.query.query as string;
       
       if (!query) {
-        const response = createApiResponse(false, undefined, 'Query parameter is required', 'Bad request', 400);
+        const response = {
+          status: false,
+          error: 'Bad request',
+          message: 'Query parameter is required'
+        };
         return res.status(400).json(response);
       }
       
       const results = await tmdbService.searchByKeyword(query);
-      const response = createApiResponse(true, { results }, 'Search results fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows: results }  // Use 'shows' key for consistency with client
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error searching:', error);
-      const response = createApiResponse(false, undefined, 'Error searching', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error searching'
+      };
       res.status(500).json(response);
     }
   };
@@ -224,16 +281,28 @@ app.get('/api/search', function(req: Request, res: Response) {
       const query = req.query.query as string;
       
       if (!query) {
-        const response = createApiResponse(false, undefined, 'Query parameter is required', 'Bad request', 400);
+        const response = {
+          status: false,
+          error: 'Bad request',
+          message: 'Query parameter is required'
+        };
         return res.status(400).json(response);
       }
       
       const results = await tmdbService.searchByKeyword(query);
-      const response = createApiResponse(true, { results }, 'Search results fetched successfully', undefined, 200);
+      // Structure response for client compatibility
+      const response = {
+        status: true,
+        data: { shows: results }  // Use 'shows' key for consistency with client
+      };
       res.status(200).json(response);
     } catch (error) {
       console.error('Error searching:', error);
-      const response = createApiResponse(false, undefined, 'Error searching', 'Internal server error', 500);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error searching'
+      };
       res.status(500).json(response);
     }
   };
@@ -245,16 +314,35 @@ app.get('/api/search', function(req: Request, res: Response) {
 app.get('/bookmarked', function(req: Request, res: Response) {
   // This is a placeholder for the bookmarked endpoint
   // In a real implementation, this would fetch bookmarked shows from a database
-  const response = createApiResponse(true, { bookmarked: [] }, 'Bookmarked shows fetched successfully', undefined, 200);
+  const response = {
+    status: true,
+    data: { shows: [] }  // Use 'shows' key for consistency with client
+  };
   res.status(200).json(response);
 });
 
-// Bookmarked endpoint (placeholder)
+// Bookmarked shows
 app.get('/api/bookmarked', function(req: Request, res: Response) {
-  // This is a placeholder for the bookmarked endpoint
-  // In a real implementation, this would fetch bookmarked shows from a database
-  const response = createApiResponse(true, { bookmarked: [] }, 'Bookmarked shows fetched successfully', undefined, 200);
-  res.status(200).json(response);
+  const handleRequest = async () => {
+    try {
+      // Placeholder response until bookmarking functionality is implemented
+      const response = {
+        status: true,
+        data: { shows: [] }  // Use 'shows' key for consistency with client
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error getting bookmarked shows:', error);
+      const response = {
+        status: false,
+        error: 'Internal server error',
+        message: 'Error getting bookmarked shows'
+      };
+      res.status(500).json(response);
+    }
+  };
+  
+  handleRequest();
 });
 
 // Fallback route
@@ -264,4 +352,7 @@ app.use('*', function(req: Request, res: Response) {
 });
 
 // Export the serverless handler
-export const handler = serverless(app);
+export const handler = serverless(app, {
+  // Configure the serverless handler to include CORS headers
+  binary: ['application/octet-stream', 'application/json']
+});
