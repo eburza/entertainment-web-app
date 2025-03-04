@@ -1,14 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { IAppContext, IBookmarkContext, IUser, IShow } from '../types/interface';
-import {
-  getAllTrending,
-  getAllShows,
-  getMovies,
-  getTvSeries,
-  getMovieDetails,
-  getTvSeriesDetails,
-} from '../services/tmdb';
+import api from '../services/api/api';
 import { useParams } from 'react-router-dom';
+
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
 // AppContext provider
@@ -39,8 +33,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     async function getShows() {
       try {
         setIsLoading(true);
-        const data = await getAllShows();
-        setShows(data as unknown as IShow[]);
+        const response = await api.getAllShows();
+        setShows(response.data);
         setIsError(false);
         setErrorMessage('');
       } catch (error) {
@@ -61,8 +55,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     async function getTrending() {
       try {
         setIsLoading(true);
-        const data = await getAllTrending();
-        setTrending(data as unknown as IShow[]);
+        const response = await api.getTrending();
+        setTrending(response.data);
         setIsError(false);
         setErrorMessage('');
       } catch (error) {
@@ -82,8 +76,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     async function fetchMovies() {
       try {
-        const data = await getMovies();
-        setMovies(data as unknown as IShow[]);
+        setIsLoading(true);
+        const response = await api.getMovies();
+        setMovies(response.data);
       } catch (error) {
         console.error('Error in AppContext getMovies:', error);
         setIsError(true);
@@ -101,8 +96,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     async function fetchTvSeries() {
       try {
-        const data = await getTvSeries();
-        setTvSeries(data as unknown as IShow[]);
+        setIsLoading(true);
+        const response = await api.getTvSeries();
+        setTvSeries(response.data);
       } catch (error) {
         console.error('Error in AppContext getTvSeries:', error);
         setIsError(true);
@@ -122,7 +118,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (!paramId) return null; // Skip if no ID is provided
 
       try {
-        const data = await getMovieDetails(paramId as string);
+        const data = await api.getMovieDetails(paramId as string);
         setMovieDetails(data as unknown as IShow);
         return data as unknown as IShow;
       } catch (error) {
@@ -146,7 +142,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (!paramId) return null; // Skip if no ID is provided
 
       try {
-        const data = await getTvSeriesDetails(paramId as string);
+        const data = await api.getTvSeriesDetails(paramId as string);
         setTvSeriesDetails(data as unknown as IShow);
         return data as unknown as IShow;
       } catch (error) {
@@ -164,34 +160,32 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [params.id]);
 
-  // get bookmarks
+  // get bookmarked shows
   useEffect(() => {
     async function getBookmarks() {
       try {
-        // Check if we're in development mode without backend
-        if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
-          console.warn(
-            'Backend API is not configured for getBookmarks. Using mock data or skipping'
-          );
-          setBookmarks(null);
-          return;
-        }
+        setIsLoading(true);
+        const response = await api.getBookmarkedShows();
+        const shows = response.data;
 
-        const data = await fetch('/api/user/bookmarks');
-        if (!data.ok) {
-          throw new Error(`API responded with status: ${data.status}`);
-        }
-        const response = await data.json();
-        setBookmarks(response);
+        setBookmarks({
+          bookmarks: {
+            movies: shows.filter(show => show.media_type === 'movie'),
+            tvSeries: shows.filter(show => show.media_type === 'tv'),
+          },
+        });
       } catch (error) {
         console.error('Error fetching bookmarks:', error);
-        // Silently fail and set bookmarks to null
         setBookmarks(null);
+      } finally {
+        setIsLoading(false);
       }
     }
 
-    getBookmarks();
-  }, []);
+    if (isAuthenticated) {
+      getBookmarks();
+    }
+  }, [isAuthenticated]);
 
   // TODO: Implement user authentication
   // useEffect(() => {
@@ -250,41 +244,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   //   }
   // }, [isAuthenticated]);
 
-  // load show by id
-  useEffect(() => {
-    async function loadShow() {
-      if (!params.id) return; // Skip if no ID is provided
-
-      setIsLoading(true);
-      try {
-        // Check if we're in development mode without backend
-        if (process.env.NODE_ENV === 'development' && !process.env.REACT_APP_API_BASE_URL) {
-          console.warn('Backend API is not configured. Using mock data');
-          // Set mock data or handle this case as needed
-          setShows([]);
-          return;
-        }
-
-        const data = await fetch(`/api/show/${params.id}`);
-        if (!data.ok) {
-          throw new Error(`API responded with status: ${data.status}`);
-        }
-        const response = await data.json();
-        setShows(response);
-        setIsSuccess(true);
-        setSuccessMessage('Show loaded successfully');
-      } catch (error) {
-        console.error('Error loading show:', error);
-        setIsError(true);
-        setErrorMessage('Error loading show');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadShow();
-  }, [params.id]);
-
   // return app context
   return (
     <AppContext.Provider
@@ -332,5 +291,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
 // use app context
 export function useAppContext() {
-  return useContext(AppContext);
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
 }
+
+export default AppContext;
