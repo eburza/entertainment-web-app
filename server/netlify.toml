@@ -35,11 +35,18 @@
 
 # API routes redirect to the serverless function
 [[redirects]]
+  from = "/api"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
+# SPA redirect for the client
 [[redirects]]
   from = "/*"
   to = "/index.html"
