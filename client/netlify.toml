@@ -12,6 +12,15 @@
   for = "/*"
     [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+    # Add CORS headers for the client site as well
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
 
 [context.production.environment]
   REACT_APP_API_URL = "https://entertainment-web-app-api.netlify.app"
+  REACT_APP_USE_FALLBACK = "false"
+
+[context.development.environment]
+  REACT_APP_API_URL = "http://localhost:3001"
+  REACT_APP_USE_FALLBACK = "true"

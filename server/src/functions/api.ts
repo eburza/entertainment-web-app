@@ -12,9 +12,9 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 // Create the express app
 const app = express();
 
-// CORS configuration - allow all origins for now to debug
+// CORS configuration - enhanced for more permissive settings during development
 app.use(cors({
-  origin: '*',
+  origin: '*',  // Allow all origins 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept'],
   credentials: true,
@@ -24,6 +24,8 @@ app.use(cors({
 
 // Add CORS headers to all responses as a fallback
 app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`[DEBUG] Handling ${req.method} request to ${req.url} from origin: ${req.headers.origin || 'unknown'}`);
+  
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -261,5 +263,5 @@ app.use('*', function(req: Request, res: Response) {
   res.status(404).json(response);
 });
 
-// Export the serverless function
+// Export the serverless handler
 export const handler = serverless(app);
