@@ -11,6 +11,7 @@ import {
 import { useParams } from 'react-router-dom';
 const AppContext = createContext<IAppContext | undefined>(undefined);
 
+// AppContext provider
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [shows, setShows] = useState<IShow[]>([]);
@@ -30,8 +31,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const [isUser, setIsUser] = useState<boolean>(false);
 
+  // get params
   const params = useParams();
 
+  // get shows
   useEffect(() => {
     async function getShows() {
       try {
@@ -53,6 +56,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     getShows();
   }, []);
 
+  // get trending
   useEffect(() => {
     async function getTrending() {
       try {
@@ -74,6 +78,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     getTrending();
   }, []);
 
+  // get movies
   useEffect(() => {
     async function fetchMovies() {
       try {
@@ -92,6 +97,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMovies();
   }, []);
 
+  // get tv series
   useEffect(() => {
     async function fetchTvSeries() {
       try {
@@ -110,6 +116,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchTvSeries();
   }, []);
 
+  // get movie details
   useEffect(() => {
     async function fetchMovieDetails(paramId: string | number): Promise<IShow | null> {
       if (!paramId) return null; // Skip if no ID is provided
@@ -133,6 +140,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [params.id]);
 
+  // get tv series details
   useEffect(() => {
     async function fetchTvSeriesDetails(paramId: string | number): Promise<IShow | null> {
       if (!paramId) return null; // Skip if no ID is provided
@@ -156,6 +164,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [params.id]);
 
+  // get bookmarks
   useEffect(() => {
     async function getBookmarks() {
       try {
@@ -241,7 +250,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   //   }
   // }, [isAuthenticated]);
 
-  // load show
+  // load show by id
   useEffect(() => {
     async function loadShow() {
       if (!params.id) return; // Skip if no ID is provided
@@ -276,6 +285,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     loadShow();
   }, [params.id]);
 
+  // return app context
   return (
     <AppContext.Provider
       value={{
@@ -320,6 +330,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// use app context
 export function useAppContext() {
   return useContext(AppContext);
 }
