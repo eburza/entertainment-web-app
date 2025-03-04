@@ -30,7 +30,11 @@ const getAllShows = async (): Promise<ApiResponse<IShow[]>> => {
 const getMovies = async (): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(API_ENDPOINTS.GET_MOVIES);
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
+    //return response.data;
   } catch (error) {
     throw new ApiErrorClass('Failed to fetch movies', 500);
   }
@@ -40,7 +44,10 @@ const getMovies = async (): Promise<ApiResponse<IShow[]>> => {
 const getMovieDetails = async (movieId: string): Promise<ApiResponse<IShow>> => {
   try {
     const response = await axiosConfig.get(`${API_ENDPOINTS.GET_MOVIES}/${movieId}`);
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
   } catch (error) {
     throw new ApiErrorClass('Failed to fetch movie details', 500);
   }
@@ -50,7 +57,10 @@ const getMovieDetails = async (movieId: string): Promise<ApiResponse<IShow>> => 
 const getTvSeries = async (): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(API_ENDPOINTS.GET_TV_SERIES);
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
   } catch (error) {
     throw new ApiErrorClass('Failed to fetch TV series', 500);
   }
@@ -60,7 +70,10 @@ const getTvSeries = async (): Promise<ApiResponse<IShow[]>> => {
 const getTvSeriesDetails = async (tvId: string): Promise<ApiResponse<IShow>> => {
   try {
     const response = await axiosConfig.get(`${API_ENDPOINTS.GET_TV_SERIES}/${tvId}`);
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
   } catch (error) {
     throw new ApiErrorClass('Failed to fetch TV series details', 500);
   }
@@ -83,7 +96,10 @@ const getTrending = async (): Promise<ApiResponse<IShow[]>> => {
 const searchShows = async (query: string): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(`${API_ENDPOINTS.SEARCH}?query=${query}`);
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
   } catch (error) {
     throw new ApiErrorClass('Failed to search shows', 500);
   }
@@ -93,7 +109,10 @@ const searchShows = async (query: string): Promise<ApiResponse<IShow[]>> => {
 const getBookmarkedShows = async (): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(API_ENDPOINTS.GET_BOOKMARKED);
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
   } catch (error) {
     throw new ApiErrorClass('Failed to fetch bookmarked shows', 500);
   }
@@ -103,7 +122,10 @@ const getBookmarkedShows = async (): Promise<ApiResponse<IShow[]>> => {
 const addShowToBookmarks = async (showId: string): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.post(API_ENDPOINTS.ADD_BOOKMARK, { showId });
-    return response.data;
+    return {
+      status: response.data.status,
+      data: response.data.data.shows,
+    };
   } catch (error) {
     throw new ApiErrorClass('Failed to add show to bookmarks', 500);
   }

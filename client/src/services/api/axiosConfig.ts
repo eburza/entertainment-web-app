@@ -6,7 +6,7 @@ const axiosConfig = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add withCredentials for CORS
+  // Disable withCredentials for standard CORS
   withCredentials: false,
   // Ensure cookies are not sent with requests
   xsrfCookieName: undefined,
@@ -19,8 +19,9 @@ axiosConfig.interceptors.request.use(
     // Add debug logging
     console.log(`Making API request to: ${config.baseURL}${config.url}`);
 
-    // Add CORS headers explicitly
-    config.headers['Access-Control-Allow-Origin'] = '*';
+    // Don't add CORS headers client-side - these are set by the server
+    // Removing this line as browsers block these headers in requests
+    // config.headers['Access-Control-Allow-Origin'] = '*';
 
     //TODO: add the auth token to the headers
     //get the token from the local storage
@@ -49,8 +50,20 @@ axiosConfig.interceptors.response.use(
       // Create a mock response for development/fallback
       if (process.env.NODE_ENV === 'development' || process.env.REACT_APP_USE_FALLBACK === 'true') {
         console.warn('Using fallback data due to API connection issue');
+        const url = error.config.url;
+        let mockData;
+
+        // Return different mock data based on endpoint
+        if (url?.includes('movies')) {
+          mockData = { status: true, data: [{ title: 'Mock Movie', id: '1' }] };
+        } else if (url?.includes('tv')) {
+          mockData = { status: true, data: [{ title: 'Mock TV Show', id: '2' }] };
+        } else {
+          mockData = { status: true, data: [] };
+        }
+
         return Promise.resolve({
-          data: { status: true, data: [] },
+          data: mockData,
         });
       }
     }
