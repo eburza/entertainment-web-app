@@ -1,4 +1,4 @@
-import { useAppContext } from '@/context/AppContext';
+import { useAppContext } from '../context/AppContext';
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
