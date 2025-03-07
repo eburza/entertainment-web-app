@@ -50,6 +50,106 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     getShows();
   }, []);
 
+  // Authentication Functions
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setIsError(false);
+      setErrorMessage('');
+
+      const response = await api.login({ email, password });
+
+      if (response.data && response.data.user) {
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+        setIsAdmin(response.data.user.isAdmin || false);
+        setIsGuest(response.data.user.isGuest || false);
+        setIsUser(response.data.user.isUser || true);
+
+        // Store token in localStorage
+        localStorage.setItem('token', response.data.token);
+
+        setIsSuccess(true);
+        setSuccessMessage('Login successful');
+        return true;
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || 'Invalid email or password');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setIsError(false);
+      setErrorMessage('');
+
+      const response = await api.register({ name, email, password });
+
+      if (response.data && response.data.success) {
+        setIsSuccess(true);
+        setSuccessMessage('Registration successful! Please login.');
+        return true;
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || 'Registration failed');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    setIsGuest(false);
+    setIsUser(false);
+
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+
+    setIsSuccess(true);
+    setSuccessMessage('Logout successful');
+  };
+
+  // Check if user is logged in on app load
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem('token');
+
+      if (token) {
+        try {
+          const response = await api.getCurrentUser();
+
+          if (response.data && response.data.user) {
+            setUser(response.data.user);
+            setIsAuthenticated(true);
+            setIsAdmin(response.data.user.isAdmin || false);
+            setIsGuest(response.data.user.isGuest || false);
+            setIsUser(response.data.user.isUser || true);
+          }
+        } catch (error) {
+          console.error('Auth check error:', error);
+          localStorage.removeItem('token');
+        }
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
   // get trending
   useEffect(() => {
     async function getTrending() {
@@ -187,63 +287,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isAuthenticated]);
 
-  // TODO: Implement user authentication
-  // useEffect(() => {
-  //   async function getUser() {
-  //     setIsLoading(true);
-  //     try {
-  //       const data = await fetch('/api/user');
-  //       const response = await data.json();
-  //       setUser(response);
-  //       setIsSuccess(true);
-  //       setSuccessMessage('User fetched successfully');
-  //     } catch (error) {
-  //       setIsError(true);
-  //       setErrorMessage('Error fetching user');
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   }
-
-  //   getUser();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (user) {
-  //     setIsAuthenticated(true);
-  //     setIsAdmin(user.isAdmin);
-  //     setIsGuest(user.isGuest);
-  //     setIsUser(user.isUser);
-  //   } else {
-  //     setIsAuthenticated(false);
-  //     setIsAdmin(false);
-  //     setIsGuest(false);
-  //     setIsUser(false);
-  //   }
-  // }, [user]);
-
-  // async function getBookmarks() {
-  //   setIsLoading(true);
-  //   try {
-  //     const data = await fetch('/api/user/bookmarks');
-  //     const response = await data.json();
-  //     setBookmarks(response);
-  //     setIsSuccess(true);
-  //     setSuccessMessage('Bookmarks fetched successfully');
-  //   } catch (error) {
-  //     setIsError(true);
-  //     setErrorMessage('Error fetching bookmarks');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     getBookmarks();
-  //   }
-  // }, [isAuthenticated]);
-
   // return app context
   return (
     <AppContext.Provider
@@ -282,6 +325,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setIsUser,
         trending,
         setTrending,
+        login,
+        logout,
+        register,
       }}
     >
       {children}
