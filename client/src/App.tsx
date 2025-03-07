@@ -6,6 +6,10 @@ import Home from './pages/Home';
 import Movies from './pages/Movies';
 import TVSeries from './pages/TVSeries';
 import Bookmarked from './pages/Bookmarked';
+import User from './pages/User';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import './styles.css';
 
 function App() {
@@ -14,11 +18,33 @@ function App() {
       <AppProvider>
         <Router>
           <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            {/* Layout wrapper for all main content pages */}
             <Route path="/" element={<Layout />}>
+              {/* Public routes - accessible to all users */}
               <Route index element={<Home />} />
               <Route path="/movies" element={<Movies />} />
               <Route path="/tv-series" element={<TVSeries />} />
-              <Route path="/bookmarked" element={<Bookmarked />} />
+
+              {/* Protected routes - require authentication */}
+              <Route
+                path="/bookmarked"
+                element={
+                  <ProtectedRoute>
+                    <Bookmarked />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user"
+                element={
+                  <ProtectedRoute>
+                    <User />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
           </Routes>
         </Router>
