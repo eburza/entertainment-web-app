@@ -21,11 +21,11 @@
   "license": "ISC",
   "dependencies": {
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.4",
     "axios": "^1.8.1",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -39,10 +39,13 @@
     "serverless-http": "^3.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
+    "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-mongodb": "^6.0.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.9",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "@vitest/coverage-v8": "^1.0.0",
