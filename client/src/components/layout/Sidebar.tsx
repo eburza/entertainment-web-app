@@ -3,7 +3,8 @@ import navHomeIcon from '../../assets/icons/icon-nav-home.svg';
 import navMoviesIcon from '../../assets/icons/icon-nav-movies.svg';
 import navTvSeriesIcon from '../../assets/icons/icon-nav-tv-series.svg';
 import navBookmarkedIcon from '../../assets/icons/icon-nav-bookmark.svg';
-import userAvatar from '../../assets/avatar/image-avatar.png';
+// import userAvatar from '../../assets/avatar/image-avatar.png';
+import userEmptyAvatar from '../../assets/avatar/user-empty.svg';
 import { Link } from 'react-router-dom';
 
 export default function Sidebar() {
@@ -34,11 +35,13 @@ export default function Sidebar() {
           </li>
         </ul>
       </nav>
-      <img
-        src={userAvatar}
-        alt="User avatar"
-        className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-light"
-      />
+      <Link to="/login">
+        <img
+          src={userEmptyAvatar}
+          alt="User avatar"
+          className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-light"
+        />
+      </Link>
     </section>
   );
 }
