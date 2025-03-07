@@ -68,6 +68,10 @@ export interface ISwiperComponentProps {
   variant: 'trending' | 'regular';
 }
 
+export interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
 export interface IAppContext {
   user: IUser | null;
   setUser: (user: IUser | null) => void;
@@ -103,6 +107,10 @@ export interface IAppContext {
   setIsGuest: (isGuest: boolean) => void;
   isUser: boolean | null;
   setIsUser: (isUser: boolean) => void;
+  // Authentication functions
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<boolean>;
+  logout: () => void;
 }
 
 export interface TMDBResponse {
