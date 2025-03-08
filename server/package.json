@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "tsc && npm run copy-files",
+    "build": "npm install && tsc && npm run copy-files",
     "copy-files": "mkdir -p dist/functions && cp -r netlify/functions/* dist/functions/ && for dir in routes config middleware models services types utils controllers; do if [ -d \"dist/src/$dir\" ]; then mkdir -p \"dist/$dir\" && cp -r \"dist/src/$dir\"/* \"dist/$dir/\" || true; fi; done",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -21,6 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.4",
     "axios": "^1.8.1",
@@ -44,8 +46,6 @@
     "winston-mongodb": "^6.0.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.9",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "@vitest/coverage-v8": "^1.0.0",

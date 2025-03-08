@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { tmdbService } from '../services/tmdb/tmdb.service';
 import { ApiErrorClass } from '../types/apiResponseType';
 
 const router = express.Router();
 
 // Get all shows and trending
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const [shows, trending] = await Promise.all([
       tmdbService.getAllShows(),

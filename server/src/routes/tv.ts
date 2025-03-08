@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { tmdbService } from '../services/tmdb/tmdb.service';
 import { ApiErrorClass } from '../types/apiResponseType';
 
 const router = express.Router();
 
 // Get TV series only
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const tvSeries = await tmdbService.getTvSeries();
     res.json({

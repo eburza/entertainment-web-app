@@ -1,11 +1,13 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { tmdbService } from '../services/tmdb/tmdb.service';
 import { ApiErrorClass } from '../types/apiResponseType';
 
 const router = express.Router();
 
-// Get movies only
-router.get('/', async (req, res) => {
+// @route   GET /api/movies
+// @desc    Get all movies
+// @access  Public
+router.get('/', async (req: Request, res: Response) => {
   try {
     const movies = await tmdbService.getMovies();
     res.json({

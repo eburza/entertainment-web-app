@@ -7,13 +7,6 @@ import { IUser } from '../types/interface';
 
 const router = express.Router();
 
-// Type for request with user
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
-
 // @route   POST /api/auth/register
 // @desc    Register a user
 // @access  Public
@@ -134,7 +127,7 @@ router.post('/login', async (req: Request, res: Response) => {
 // @route   GET /api/auth/me
 // @desc    Get current user
 // @access  Private
-router.get('/me', async (req: AuthRequest, res: Response) => {
+router.get('/me', async (req: Request, res: Response) => {
   try {
     // Get token from header
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -188,7 +181,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
 // @route   POST /api/auth/logout
 // @desc    Logout a user
 // @access  Private
-router.post('/logout', async (req: AuthRequest, res: Response) => {
+router.post('/logout', async (req: Request, res: Response) => {
   try {
     // Get token from header
     const token = req.header('Authorization')?.replace('Bearer ', '');
