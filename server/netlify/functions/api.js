@@ -406,7 +406,6 @@ app.use('*', (req, res) => {
 });
 
 // Remove the router configuration since we're mounting routes directly on the app
-// This removes one layer of complexity in the routing
 // router.use('/', showsRouter);
 // router.use('/bookmarked', bookmarkedRouter);
 // router.use('/tv', tvRouter);
@@ -440,8 +439,6 @@ exports.handler = async (event, context) => {
   console.log('Request queryStringParameters:', JSON.stringify(event.queryStringParameters));
   
   // Modify the path to remove the Netlify function path prefix if it exists
-  // This is necessary because Netlify functions receive requests at /.netlify/functions/api
-  // but our code expects paths like /movies, /tv, etc.
   if (event.path.startsWith('/.netlify/functions/api')) {
     const originalPath = event.path;
     // Strip the function path prefix
