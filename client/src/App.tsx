@@ -18,11 +18,10 @@ function App() {
       <AppProvider>
         <Router>
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
             {/* Layout wrapper for all main content pages */}
             <Route path="/" element={<Layout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               {/* Public routes - accessible to all users */}
               <Route index element={<Home />} />
               <Route path="/movies" element={<Movies />} />
