@@ -29,13 +29,12 @@ axiosConfig.interceptors.request.use(
     // Removing this line as browsers block these headers in requests
     // config.headers['Access-Control-Allow-Origin'] = '*';
 
-    //TODO: add the auth token to the headers
-    //get the token from the local storage
-    //  const token = localStorage.getItem('token');
-    //if the token is present, add it to the headers
-    //  if (token) {
-    //    config.headers.Authorization = `Bearer ${token}`;
-    //  }
+    // Add the auth token to the headers
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
   error => {
