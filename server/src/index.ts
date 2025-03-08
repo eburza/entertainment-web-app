@@ -8,6 +8,7 @@ import bookmarkedRouter from './routes/bookmarked';
 import tvRouter from './routes/tv';
 import moviesRouter from './routes/movies';
 import searchRouter from './routes/search';
+import authRouter from './routes/auth';
 import connectToDatabase from './config/db';
 import errorHandler from './middleware/error';
 import logging from './config/logger';
@@ -35,6 +36,7 @@ app.use('/bookmarked', bookmarkedRouter);
 app.use('/tv', tvRouter);
 app.use('/movies', moviesRouter);
 app.use('/search', searchRouter);
+app.use('/auth', authRouter);
 
 //error handling middleware
 app.use(errorHandler);
