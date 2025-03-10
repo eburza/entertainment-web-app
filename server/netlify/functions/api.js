@@ -459,6 +459,532 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Authentication Routes
+
+// @route   POST /.netlify/functions/api/auth/register
+// @desc    Register a user
+// @access  Public
+app.post('/.netlify/functions/api/auth/register', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Register endpoint hit');
+    const { name, email, password } = req.body;
+    
+    // Validate request
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide name, email, and password',
+      });
+    }
+    
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'User already exists',
+      });
+    }
+
+    // Create new user
+    const userId = uuidv4();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user = new User({
+      id: userId,
+      name,
+      email,
+      password: hashedPassword,
+      isAdmin: false,
+      isGuest: false,
+      isUser: true,
+      isAuthenticated: false,
+    });
+
+    await user.save();
+    console.log('[DEBUG] User registered successfully');
+
+    return res.status(201).json({
+      status: 'success',
+      data: {
+        success: true,
+        message: 'User registered successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error in register route:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error',
+    });
+  }
+});
+
+// Also define it at the shorter path to handle cases where the path is correctly modified
+app.post('/auth/register', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Register endpoint hit (short path)');
+    const { name, email, password } = req.body;
+    
+    // Validate request
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide name, email, and password',
+      });
+    }
+    
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'User already exists',
+      });
+    }
+
+    // Create new user
+    const userId = uuidv4();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user = new User({
+      id: userId,
+      name,
+      email,
+      password: hashedPassword,
+      isAdmin: false,
+      isGuest: false,
+      isUser: true,
+      isAuthenticated: false,
+    });
+
+    await user.save();
+    console.log('[DEBUG] User registered successfully');
+
+    return res.status(201).json({
+      status: 'success',
+      data: {
+        success: true,
+        message: 'User registered successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error in register route:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error',
+    });
+  }
+});
+
+// @route   POST /.netlify/functions/api/auth/login
+// @desc    Login a user
+// @access  Public
+app.post('/.netlify/functions/api/auth/login', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Login endpoint hit (full path)');
+    const { email, password } = req.body;
+
+    // Validate request
+    if (!email || !password) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide email and password',
+      });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid credentials',
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid credentials',
+      });
+    }
+
+    // Update user authentication status
+    user.isAuthenticated = true;
+    await user.save();
+
+    // Create JWT token
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, {
+      expiresIn: '1d',
+    });
+
+    // Return user data without password
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isGuest: user.isGuest,
+      isUser: user.isUser,
+      isAuthenticated: user.isAuthenticated,
+    };
+
+    console.log('[DEBUG] User logged in successfully');
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        user: userData,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error('Error in login route:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error',
+    });
+  }
+});
+
+// Also define login at shorter path
+app.post('/auth/login', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Login endpoint hit (short path)');
+    const { email, password } = req.body;
+
+    // Validate request
+    if (!email || !password) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide email and password',
+      });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid credentials',
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid credentials',
+      });
+    }
+
+    // Update user authentication status
+    user.isAuthenticated = true;
+    await user.save();
+
+    // Create JWT token
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, {
+      expiresIn: '1d',
+    });
+
+    // Return user data without password
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isGuest: user.isGuest,
+      isUser: user.isUser,
+      isAuthenticated: user.isAuthenticated,
+    };
+
+    console.log('[DEBUG] User logged in successfully');
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        user: userData,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error('Error in login route:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error',
+    });
+  }
+});
+
+// @route   GET /.netlify/functions/api/auth/me
+// @desc    Get current user
+// @access  Private
+app.get('/.netlify/functions/api/auth/me', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Get current user endpoint hit (full path)');
+    // Get token from header
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'No token, authorization denied',
+      });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Get user
+    const user = await User.findOne({ id: decoded.user.id });
+    
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found',
+      });
+    }
+
+    // Return user data without password
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isGuest: user.isGuest,
+      isUser: user.isUser,
+      isAuthenticated: user.isAuthenticated,
+    };
+
+    console.log('[DEBUG] Current user retrieved successfully');
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        user: userData,
+      },
+    });
+  } catch (error) {
+    console.error('Error in get current user route:', error);
+    return res.status(401).json({
+      status: 'fail',
+      message: 'Token is not valid',
+    });
+  }
+});
+
+// Also define get current user at shorter path
+app.get('/auth/me', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Get current user endpoint hit (short path)');
+    // Get token from header
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'No token, authorization denied',
+      });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Get user
+    const user = await User.findOne({ id: decoded.user.id });
+    
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found',
+      });
+    }
+
+    // Return user data without password
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isGuest: user.isGuest,
+      isUser: user.isUser,
+      isAuthenticated: user.isAuthenticated,
+    };
+
+    console.log('[DEBUG] Current user retrieved successfully');
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        user: userData,
+      },
+    });
+  } catch (error) {
+    console.error('Error in get current user route:', error);
+    return res.status(401).json({
+      status: 'fail',
+      message: 'Token is not valid',
+    });
+  }
+});
+
+// @route   POST /.netlify/functions/api/auth/logout
+// @desc    Logout a user
+// @access  Private
+app.post('/.netlify/functions/api/auth/logout', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Logout endpoint hit (full path)');
+    // Get token from header
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'No token, authorization denied',
+      });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Get user
+    const user = await User.findOne({ id: decoded.user.id });
+    
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found',
+      });
+    }
+
+    // Update user authentication status
+    user.isAuthenticated = false;
+    await user.save();
+
+    console.log('[DEBUG] User logged out successfully');
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        message: 'User logged out successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error in logout route:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error',
+    });
+  }
+});
+
+// Also define logout at shorter path
+app.post('/auth/logout', async (req, res) => {
+  try {
+    // Connect to MongoDB if not already connected
+    if (!isConnected) {
+      await connectToDatabase();
+      isConnected = true;
+    }
+    
+    console.log('[DEBUG] Logout endpoint hit (short path)');
+    // Get token from header
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'No token, authorization denied',
+      });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Get user
+    const user = await User.findOne({ id: decoded.user.id });
+    
+    if (!user) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'User not found',
+      });
+    }
+
+    // Update user authentication status
+    user.isAuthenticated = false;
+    await user.save();
+
+    console.log('[DEBUG] User logged out successfully');
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        message: 'User logged out successfully',
+      },
+    });
+  } catch (error) {
+    console.error('Error in logout route:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Server error',
+    });
+  }
+});
+
 // Wrap the Express app with serverless
 const handler = serverless(app);
 
@@ -469,25 +995,11 @@ exports.handler = async (event, context) => {
   console.log('Request headers:', JSON.stringify(event.headers));
   console.log('Request queryStringParameters:', JSON.stringify(event.queryStringParameters));
   
-  // Modify the path to remove the Netlify function path prefix if it exists
-  if (event.path.startsWith('/.netlify/functions/api')) {
-    const originalPath = event.path;
-    // Strip the function path prefix
-    event.path = event.path.replace('/.netlify/functions/api', '') || '/';
-    console.log(`Modified path from ${originalPath} to ${event.path}`);
-  }
-  
-  // Special handling for empty paths - route to root
-  if (event.path === '') {
-    event.path = '/';
-    console.log(`Empty path detected, routing to /`);
-  }
-  
-  // Log the final normalized path
-  console.log(`Final normalized path: ${event.path}`);
-  
-  // Wait for the response
   try {
+    // Do not modify the path - let the serverless handler manage path routing
+    // This was causing auth routes to not be found correctly
+    
+    // Wait for the response
     return await handler(event, context);
   } catch (error) {
     console.error('Error in handler:', error);
