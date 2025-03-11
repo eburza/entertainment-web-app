@@ -23,6 +23,15 @@ app.use(cors());
 app.use(auth);
 app.use(express.urlencoded({ extended: true }));
 
+// Log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`[DEBUG] Received request: ${req.method} ${req.url}`);
+  console.log(`[DEBUG] Request query:`, req.query);
+  console.log(`[DEBUG] Request path:`, req.path);
+  console.log(`[DEBUG] Request originalUrl:`, req.originalUrl);
+  next();
+});
+
 // Log environment variables for debugging (will be removed in production)
 console.log('TMDB_BASE_URL:', process.env.TMDB_BASE_URL);
 console.log('TMDB_API_ACCESS_TOKEN exists:', !!process.env.TMDB_API_ACCESS_TOKEN);
