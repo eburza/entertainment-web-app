@@ -53,7 +53,7 @@ const makeHttpRequest = (url) => {
   });
 };
 
-// Create TMDB API client - avoid using .create method which might not be available
+// TMDB API client
 const tmdbApi = {
   get: async (endpoint) => {
     const url = `${TMDB_BASE_URL}${endpoint}`;
@@ -61,7 +61,7 @@ const tmdbApi = {
   }
 };
 
-// Simple TMDB service
+// TMDB service
 const tmdbService = {
   // Get all shows (movies and TV series)
   async getAllShows() {
@@ -265,12 +265,14 @@ app.get('/test', (req, res) => {
   res.json({ message: 'API is working' });
 });
 
-// Mount routers directly on the app for simplicity rather than using a nested router
-// This avoids potential path matching issues
+//TMDB Routes
 app.get('/', async (req, res) => {
+  console.log('[DEBUG] Root endpoint hit with query:', req.query);
+
   try {
     if (req.query.trending === 'true') {
       const trendingShows = await tmdbService.getAllTrending();
+      
       return res.json({ 
         status: true, 
         data: { 
@@ -286,8 +288,10 @@ app.get('/', async (req, res) => {
         shows: shows
       } 
     });
+
   } catch (error) {
     console.error('Error in shows route:', error);
+    
     return res.status(500).json({ 
       status: false, 
       error: { 
@@ -300,17 +304,21 @@ app.get('/', async (req, res) => {
 
 app.get('/movies', async (req, res) => {
   console.log('[DEBUG] Movies endpoint hit');
+
   try {
     const movies = await tmdbService.getMovies();
     console.log(`[DEBUG] Movies fetched successfully: ${movies.length} items`);
+    
     return res.json({ 
       status: true, 
       data: { 
         shows: movies
       } 
     });
+
   } catch (error) {
     console.error('Error in movies route:', error);
+    
     return res.status(500).json({ 
       status: false, 
       error: { 
@@ -323,17 +331,21 @@ app.get('/movies', async (req, res) => {
 
 app.get('/tv', async (req, res) => {
   console.log('[DEBUG] TV endpoint hit');
+
   try {
     const tvSeries = await tmdbService.getTvSeries();
     console.log(`[DEBUG] TV series fetched successfully: ${tvSeries.length} items`);
+    
     return res.json({ 
       status: true, 
       data: { 
         shows: tvSeries
       } 
     });
+
   } catch (error) {
     console.error('Error in TV route:', error);
+    
     return res.status(500).json({ 
       status: false, 
       error: { 
@@ -346,8 +358,10 @@ app.get('/tv', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   console.log('[DEBUG] Search endpoint hit with query:', req.query.query);
+  
   try {
     const { query } = req.query;
+
     if (!query) {
       return res.status(400).json({ 
         status: false, 
@@ -360,14 +374,17 @@ app.get('/search', async (req, res) => {
     
     const searchResults = await tmdbService.searchByKeyword(query);
     console.log(`[DEBUG] Search results: ${searchResults.length} items found`);
+    
     return res.json({ 
       status: true, 
       data: { 
         shows: searchResults
       } 
     });
+
   } catch (error) {
     console.error('Error in search route:', error);
+    
     return res.status(500).json({ 
       status: false, 
       error: { 
@@ -380,6 +397,7 @@ app.get('/search', async (req, res) => {
 
 app.get('/bookmarked', (req, res) => {
   console.log('[DEBUG] Bookmarked endpoint hit');
+  
   return res.json({ 
     status: true, 
     data: { 
@@ -396,6 +414,7 @@ app.get('/health', (req, res) => {
 // Add a catch-all route for debugging
 app.use('*', (req, res) => {
   console.log(`[DEBUG] No route matched for ${req.method} ${req.originalUrl}`);
+  
   res.status(404).json({
     status: false,
     error: {
@@ -405,20 +424,10 @@ app.use('*', (req, res) => {
   });
 });
 
-// Remove the router configuration since we're mounting routes directly on the app
-// router.use('/', showsRouter);
-// router.use('/bookmarked', bookmarkedRouter);
-// router.use('/tv', tvRouter);
-// router.use('/movies', moviesRouter);
-// router.use('/search', searchRouter);
-
-// // Mount the router on multiple paths to handle different client configurations
-// app.use('/', router);                        // Direct root access
-// app.use('/.netlify/functions/api', router);  // Netlify function path
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error in request:', err.stack);
+  
   res.status(err.statusCode || 500).json({
     status: false,
     error: {
@@ -458,8 +467,10 @@ exports.handler = async (event, context) => {
   // Wait for the response
   try {
     return await handler(event, context);
+
   } catch (error) {
     console.error('Error in handler:', error);
+    
     return {
       statusCode: 500,
       body: JSON.stringify({
