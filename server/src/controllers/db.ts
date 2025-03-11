@@ -1,12 +1,18 @@
 import mongoose from 'mongoose';
 
+// Log environment variables for debugging (will be removed in production)
+console.log('MONGODB_URI: exists:', !!process.env.MONGODB_URI);
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+
 async function connectToDatabase() {
   try {
-    if (!process.env.MONGODB_URI) {
+    if (!MONGODB_URI) {
       throw new Error('MONGODB_URI is not defined in the environment variables');
     }
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(MONGODB_URI);
     console.log('Connected to the database');
   }
   catch (error) {

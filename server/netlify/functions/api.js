@@ -3,7 +3,7 @@ const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
 const https = require('https');
-
+const connectToDatabase = require('../src/config/db');
 // Set up environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -53,6 +53,10 @@ const makeHttpRequest = (url) => {
   });
 };
 
+//Connect to MongoDB
+connectToDatabase();
+
+// TMDB API
 // TMDB API client
 const tmdbApi = {
   get: async (endpoint) => {
