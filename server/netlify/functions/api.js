@@ -271,151 +271,26 @@ app.use((req, res, next) => {
   next();
 });
 
+// Import routes
+const showsRouter = require('../src/routes/shows');
+const moviesRouter = require('../src/routes/movies');
+const tvRouter = require('../src/routes/tv');
+const searchRouter = require('../src/routes/search');
+const bookmarkedRouter = require('../src/routes/bookmarked');
+const authRouter = require('../src/routes/auth');
+
 // Add a test route to verify the API is working
 app.get('/test', (req, res) => {
   res.json({ message: 'API is working' });
 });
 
-//TMDB Routes
-app.get('/', async (req, res) => {
-  console.log('[DEBUG] Root endpoint hit with query:', req.query);
-
-  try {
-    if (req.query.trending === 'true') {
-      const trendingShows = await tmdbService.getAllTrending();
-      
-      return res.json({ 
-        status: true, 
-        data: { 
-          trending: trendingShows
-        } 
-      });
-    }
-    
-    const shows = await tmdbService.getAllShows();
-    return res.json({ 
-      status: true, 
-      data: { 
-        shows: shows
-      } 
-    });
-
-  } catch (error) {
-    console.error('Error in shows route:', error);
-    
-    return res.status(500).json({ 
-      status: false, 
-      error: { 
-        message: 'Failed to fetch shows', 
-        status: 500 
-      } 
-    });
-  }
-});
-
-app.get('/movies', async (req, res) => {
-  console.log('[DEBUG] Movies endpoint hit');
-
-  try {
-    const movies = await tmdbService.getMovies();
-    console.log(`[DEBUG] Movies fetched successfully: ${movies.length} items`);
-    
-    return res.json({ 
-      status: true, 
-      data: { 
-        shows: movies
-      } 
-    });
-
-  } catch (error) {
-    console.error('Error in movies route:', error);
-    
-    return res.status(500).json({ 
-      status: false, 
-      error: { 
-        message: 'Failed to fetch movies', 
-        status: 500 
-      } 
-    });
-  }
-});
-
-app.get('/tv', async (req, res) => {
-  console.log('[DEBUG] TV endpoint hit');
-
-  try {
-    const tvSeries = await tmdbService.getTvSeries();
-    console.log(`[DEBUG] TV series fetched successfully: ${tvSeries.length} items`);
-    
-    return res.json({ 
-      status: true, 
-      data: { 
-        shows: tvSeries
-      } 
-    });
-
-  } catch (error) {
-    console.error('Error in TV route:', error);
-    
-    return res.status(500).json({ 
-      status: false, 
-      error: { 
-        message: 'Failed to fetch TV series', 
-        status: 500 
-      } 
-    });
-  }
-});
-
-app.get('/search', async (req, res) => {
-  console.log('[DEBUG] Search endpoint hit with query:', req.query.query);
-  
-  try {
-    const { query } = req.query;
-
-    if (!query) {
-      return res.status(400).json({ 
-        status: false, 
-        error: { 
-          message: 'Query parameter is required', 
-          status: 400 
-        } 
-      });
-    }
-    
-    const searchResults = await tmdbService.searchByKeyword(query);
-    console.log(`[DEBUG] Search results: ${searchResults.length} items found`);
-    
-    return res.json({ 
-      status: true, 
-      data: { 
-        shows: searchResults
-      } 
-    });
-
-  } catch (error) {
-    console.error('Error in search route:', error);
-    
-    return res.status(500).json({ 
-      status: false, 
-      error: { 
-        message: 'Failed to search shows', 
-        status: 500 
-      } 
-    });
-  }
-});
-
-app.get('/bookmarked', (req, res) => {
-  console.log('[DEBUG] Bookmarked endpoint hit');
-  
-  return res.json({ 
-    status: true, 
-    data: { 
-      shows: []
-    } 
-  });
-});
+// Use modular routes
+app.use('/', showsRouter);
+app.use('/movies', moviesRouter);
+app.use('/tv', tvRouter);
+app.use('/search', searchRouter);
+app.use('/bookmarked', bookmarkedRouter);
+app.use('/auth', authRouter);
 
 // Add a health check route
 app.get('/health', (req, res) => {
