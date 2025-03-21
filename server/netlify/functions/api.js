@@ -21,7 +21,7 @@ connectToDatabase();
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use(auth);
+// app.use(auth);  // Comment this out temporarily
 app.use(express.urlencoded({ extended: true }));
 
 // Log all requests for debugging
@@ -337,6 +337,20 @@ exports.handler = async (event, context) => {
   console.log('Request headers:', JSON.stringify(event.headers));
   console.log('Request queryStringParameters:', JSON.stringify(event.queryStringParameters));
   
+  // Handle OPTIONS preflight requests directly
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://emilia-burza-entertainment-app.netlify.app',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400',
+      }
+    };
+  }
+  
   // Modify the path to remove the Netlify function path prefix if it exists
   if (event.path.startsWith('/.netlify/functions/api')) {
     const originalPath = event.path;
@@ -356,13 +370,31 @@ exports.handler = async (event, context) => {
   
   // Wait for the response
   try {
-    return await handler(event, context);
+    const response = await handler(event, context);
+    
+    // Add CORS headers to all responses
+    if (!response.headers) {
+      response.headers = {};
+    }
+    
+    response.headers['Access-Control-Allow-Origin'] = 'https://emilia-burza-entertainment-app.netlify.app';
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
+    response.headers['Access-Control-Allow-Credentials'] = 'true';
+    
+    return response;
 
   } catch (error) {
     console.error('Error in handler:', error);
     
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://emilia-burza-entertainment-app.netlify.app',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+      },
       body: JSON.stringify({
         status: false,
         error: {
@@ -377,9 +409,9 @@ exports.handler = async (event, context) => {
 app.get('/debug/shows', async (req, res) => {
   try {
     const shows = await tmdbService.getAllShows();
-    res.json({ success: true, data: shows });
+    res.json({ status: 'success', data: { shows } });
   } catch (error) {
     console.error('Debug route error:', error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ status: false, error: error.message });
   }
 }); 

@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "npm install && tsc && npm run prepare-function",
-    "prepare-function": "mkdir -p dist/functions && cp -r netlify/functions/* dist/functions/ && rm -rf netlify/dist && mkdir -p netlify/dist && cp -r dist/* netlify/dist/",
+    "prepare-function": "rm -rf dist/functions netlify/dist && mkdir -p dist/functions netlify/dist && cp -r netlify/functions/* dist/functions/ && cp -r dist/* netlify/dist/",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
