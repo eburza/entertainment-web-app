@@ -86,11 +86,13 @@ const getCurrentUser = async (): Promise<ApiResponse<{ user: IUser }>> => {
 const getAllShows = async (): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(API_ENDPOINTS.GET_SHOWS);
+    console.log('Raw API Response - getAllShows:', response.data);
     return {
       status: response.data.status,
       data: response.data.data.shows,
     };
   } catch (error) {
+    console.error('Error in getAllShows:', error);
     throw new ApiErrorClass('Failed to fetch shows', 500);
   }
 };
@@ -99,12 +101,13 @@ const getAllShows = async (): Promise<ApiResponse<IShow[]>> => {
 const getMovies = async (): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(API_ENDPOINTS.GET_MOVIES);
+    console.log('Raw API Response - getMovies:', response.data);
     return {
       status: response.data.status,
       data: response.data.data.shows,
     };
-    //return response.data;
   } catch (error) {
+    console.error('Error in getMovies:', error);
     throw new ApiErrorClass('Failed to fetch movies', 500);
   }
 };
@@ -152,11 +155,13 @@ const getTvSeriesDetails = async (tvId: string): Promise<ApiResponse<IShow>> => 
 const getTrending = async (): Promise<ApiResponse<IShow[]>> => {
   try {
     const response = await axiosConfig.get(`${API_ENDPOINTS.GET_TRENDING}?trending=true`);
+    console.log('Raw API Response - getTrending:', response.data);
     return {
       status: response.data.status,
       data: response.data.data.trending,
     };
   } catch (error) {
+    console.error('Error in getTrending:', error);
     throw new ApiErrorClass('Failed to fetch trending shows', 500);
   }
 };
