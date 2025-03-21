@@ -14,8 +14,17 @@ router.post('/register', async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
+    //Validate user request
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide name, email and password',
+      });
+    }
+
     // Check if user already exists
     let user = await User.findOne({ email });
+    
     if (user) {
       return res.status(400).json({
         status: 'fail',
@@ -48,8 +57,10 @@ router.post('/register', async (req: Request, res: Response) => {
         message: 'User registered successfully',
       },
     });
+
   } catch (error) {
     console.error('Error in register route:', error);
+
     return res.status(500).json({
       status: 'error',
       message: 'Server error',
@@ -64,8 +75,17 @@ router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
+    //Validate user request
+    if (!email || !password) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide email and password',
+      });
+    }
+
     // Check if user exists
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({
         status: 'fail',
@@ -115,8 +135,10 @@ router.post('/login', async (req: Request, res: Response) => {
         token,
       },
     });
+
   } catch (error) {
     console.error('Error in login route:', error);
+
     return res.status(500).json({
       status: 'error',
       message: 'Server error',
@@ -169,8 +191,10 @@ router.get('/me', async (req: Request, res: Response) => {
         user: userData,
       },
     });
+
   } catch (error) {
     console.error('Error in get current user route:', error);
+
     return res.status(401).json({
       status: 'fail',
       message: 'Token is not valid',
@@ -216,8 +240,10 @@ router.post('/logout', async (req: Request, res: Response) => {
         message: 'User logged out successfully',
       },
     });
+
   } catch (error) {
     console.error('Error in logout route:', error);
+    
     return res.status(500).json({
       status: 'error',
       message: 'Server error',
