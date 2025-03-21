@@ -3,10 +3,11 @@ const serverless = require('serverless-http');
 const express = require('express');
 const https = require('https');
 
-const cors = require('../config/cors');
-const connectToDatabase = require('../config/db');
-const auth = require('../middleware/auth');
-const User = require('../models/User');
+// Use dist directory for compiled TypeScript files
+const cors = require('../dist/config/cors');
+const connectToDatabase = require('../dist/config/db');
+const auth = require('../dist/middleware/auth');
+const User = require('../dist/models/User');
 
 // Set up environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -272,12 +273,12 @@ app.use((req, res, next) => {
 });
 
 // Import routes
-const showsRouter = require('../routes/shows');
-const moviesRouter = require('../routes/movies');
-const tvRouter = require('../routes/tv');
-const searchRouter = require('../routes/search');
-const bookmarkedRouter = require('../routes/bookmarked');
-const authRouter = require('../routes/auth');
+const showsRouter = require('../dist/routes/shows');
+const moviesRouter = require('../dist/routes/movies');
+const tvRouter = require('../dist/routes/tv');
+const searchRouter = require('../dist/routes/search');
+const bookmarkedRouter = require('../dist/routes/bookmarked');
+const authRouter = require('../dist/routes/auth');
 
 // Add a test route to verify the API is working
 app.get('/test', (req, res) => {

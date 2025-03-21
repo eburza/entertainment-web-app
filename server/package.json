@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "npm install && tsc && npm run copy-files",
-    "copy-files": "mkdir -p dist/functions && cp -r netlify/functions/* dist/functions/ && mkdir -p netlify/config netlify/middleware netlify/models netlify/routes && cp -r dist/config/* netlify/config/ && cp -r dist/middleware/* netlify/middleware/ && cp -r dist/models/* netlify/models/ && cp -r dist/routes/* netlify/routes/",
+    "build": "npm install && tsc && npm run prepare-function",
+    "prepare-function": "mkdir -p dist/functions && cp -r netlify/functions/* dist/functions/ && rm -rf netlify/dist && mkdir -p netlify/dist && cp -r dist/* netlify/dist/",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
