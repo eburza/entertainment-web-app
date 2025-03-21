@@ -51,7 +51,7 @@ axiosConfig.interceptors.response.use(
   response => {
     return response;
   },
-  error => {
+  async error => {
     // Check if we should use fallback data (either in development or if REACT_APP_USE_FALLBACK is true)
     const shouldUseFallback =
       process.env.NODE_ENV === 'development' || process.env.REACT_APP_USE_FALLBACK === 'true';
@@ -243,6 +243,33 @@ axiosConfig.interceptors.response.use(
       // eslint-disable-next-line no-console
       console.error('API Error:', error);
     }
+
+    // Check if the error is a CORS error (will not have status code)
+    if (!error.response && error.message.includes('Network Error')) {
+      const originalRequest = error.config;
+
+      // Only retry once to avoid infinite loops
+      if (!originalRequest._retry) {
+        originalRequest._retry = true;
+
+        // Extract the original URL
+        const originalUrl = originalRequest.url;
+
+        // Use the CORS proxy function
+        const proxyUrl = `https://emilia-burza-entertainment-app-server.netlify.app/.netlify/functions/cors-proxy?url=${encodeURIComponent(
+          `https://api.themoviedb.org/3${originalUrl}`
+        )}`;
+
+        try {
+          // Make the request through the proxy
+          const proxyResponse = await axios.get(proxyUrl);
+          return proxyResponse;
+        } catch (proxyError) {
+          return Promise.reject(proxyError);
+        }
+      }
+    }
+
     return Promise.reject(error);
   }
 );

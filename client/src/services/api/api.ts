@@ -1,6 +1,7 @@
 import axiosConfig from './axiosConfig';
 import { ApiResponse, ApiErrorClass } from '../../types/apiResponseType';
 import { IShow, IUser } from '../../types/interface';
+import axios from 'axios';
 
 // Define API endpoints
 const API_ENDPOINTS = {
@@ -83,31 +84,60 @@ const getCurrentUser = async (): Promise<ApiResponse<{ user: IUser }>> => {
 };
 
 // Get all shows
+// const getAllShows = async (): Promise<ApiResponse<IShow[]>> => {
+//   try {
+//     const response = await axiosConfig.get(API_ENDPOINTS.GET_SHOWS);
+//     console.log('Raw API Response - getAllShows:', response.data);
+//     return {
+//       status: response.data.status,
+//       data: response.data.data.shows,
+//     };
+//   } catch (error) {
+//     console.error('Error in getAllShows:', error);
+//     throw new ApiErrorClass('Failed to fetch shows', 500);
+//   }
+// };
+
 const getAllShows = async (): Promise<ApiResponse<IShow[]>> => {
   try {
-    const response = await axiosConfig.get(API_ENDPOINTS.GET_SHOWS);
-    console.log('Raw API Response - getAllShows:', response.data);
+    const response = await axios.get(
+      'https://emilia-burza-entertainment-app-server.netlify.app/.netlify/functions/debug-shows'
+    );
+    console.log('Debug API getAllShows Response:', response.data);
     return {
       status: response.data.status,
       data: response.data.data.shows,
     };
   } catch (error) {
-    console.error('Error in getAllShows:', error);
     throw new ApiErrorClass('Failed to fetch shows', 500);
   }
 };
 
 // Get all movies
+// const getMovies = async (): Promise<ApiResponse<IShow[]>> => {
+//   try {
+//     const response = await axiosConfig.get(API_ENDPOINTS.GET_MOVIES);
+//     console.log('Raw API Response - getMovies:', response.data);
+//     return {
+//       status: response.data.status,
+//       data: response.data.data.shows,
+//     };
+//   } catch (error) {
+//     console.error('Error in getMovies:', error);
+//     throw new ApiErrorClass('Failed to fetch movies', 500);
+//   }
+// };
+
 const getMovies = async (): Promise<ApiResponse<IShow[]>> => {
   try {
-    const response = await axiosConfig.get(API_ENDPOINTS.GET_MOVIES);
-    console.log('Raw API Response - getMovies:', response.data);
-    return {
-      status: response.data.status,
-      data: response.data.data.shows,
-    };
+    // Use the direct debug function
+    const response = await axios.get(
+      'https://emilia-burza-entertainment-app-server.netlify.app/.netlify/functions/debug-shows'
+    );
+    console.log('Debug API getMovies Response:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('Error in getMovies:', error);
+    console.error('Debug API Error:', error);
     throw new ApiErrorClass('Failed to fetch movies', 500);
   }
 };
