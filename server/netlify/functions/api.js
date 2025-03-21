@@ -272,6 +272,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Export the service for use by the routes
+app.locals.tmdbService = tmdbService;
+
 // Import routes
 const showsRouter = require('../dist/routes/shows');
 const moviesRouter = require('../dist/routes/movies');
@@ -369,4 +372,14 @@ exports.handler = async (event, context) => {
       })
     };
   }
-}; 
+};
+
+app.get('/debug/shows', async (req, res) => {
+  try {
+    const shows = await tmdbService.getAllShows();
+    res.json({ success: true, data: shows });
+  } catch (error) {
+    console.error('Debug route error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}); 
