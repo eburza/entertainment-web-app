@@ -3,10 +3,10 @@ const serverless = require('serverless-http');
 const express = require('express');
 const https = require('https');
 
-const cors = require('../src/config/cors');
-const connectToDatabase = require('../src/config/db');
-const auth = require('../src/middleware/auth');
-const User = require('../src/models/User');
+const cors = require('../config/cors');
+const connectToDatabase = require('../config/db');
+const auth = require('../middleware/auth');
+const User = require('../models/User');
 
 // Set up environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -272,12 +272,12 @@ app.use((req, res, next) => {
 });
 
 // Import routes
-const showsRouter = require('../src/routes/shows');
-const moviesRouter = require('../src/routes/movies');
-const tvRouter = require('../src/routes/tv');
-const searchRouter = require('../src/routes/search');
-const bookmarkedRouter = require('../src/routes/bookmarked');
-const authRouter = require('../src/routes/auth');
+const showsRouter = require('../routes/shows');
+const moviesRouter = require('../routes/movies');
+const tvRouter = require('../routes/tv');
+const searchRouter = require('../routes/search');
+const bookmarkedRouter = require('../routes/bookmarked');
+const authRouter = require('../routes/auth');
 
 // Add a test route to verify the API is working
 app.get('/test', (req, res) => {
