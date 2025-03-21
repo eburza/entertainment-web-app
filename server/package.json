@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "npm install && tsc && npm run copy-files",
-    "copy-files": "mkdir -p dist/functions && cp -r netlify/functions/* dist/functions/ && cp -r src/* dist/",
+    "copy-files": "mkdir -p dist/functions && cp -r netlify/functions/* dist/functions/ && cp -r dist/src/* dist/functions/",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
